@@ -38,6 +38,7 @@ public class DataEnricher {
         columnIndex.put("story_volume", 33);
         columnIndex.put("event_author_rank", 40);
         columnIndex.put("article_url", 52);
+        columnIndex.put("overall_source_rank", 37);
     }
 
     private final Reader source;
@@ -64,19 +65,21 @@ public class DataEnricher {
                         data.get(columnIndex.get("article_sentiment")) == null ||
                         data.get(columnIndex.get("story_name")) == null ||
                         data.get(columnIndex.get("story_sentiment")) == null ||
-                        data.get(columnIndex.get("story_sentiment")).isEmpty()||
+                        data.get(columnIndex.get("story_sentiment")).isEmpty() ||
                         data.get(columnIndex.get("story_volume")) == null ||
                         data.get(columnIndex.get("story_volume")).isEmpty() ||
                         data.get(columnIndex.get("event_author_rank")) == null ||
                         data.get(columnIndex.get("article_url")) == null ||
-                        data.get(columnIndex.get("article_url")).isEmpty()) {
+                        data.get(columnIndex.get("article_url")).isEmpty() ||
+                        data.get(columnIndex.get("overall_source_rank")) == null ||
+                        data.get(columnIndex.get("overall_source_rank")).isEmpty()) {
                     return false;
                 } else {
                     return true;
                 }
             }).map((line) -> {
                 List<String> data = Arrays.asList(line.split(","));
-                List<String> selectedData = new ArrayList<String>();
+                List<String> selectedData = new ArrayList<>();
                 selectedData.add(data.get(columnIndex.get("article_id")));
                 selectedData.add(data.get(columnIndex.get("story_id")));
                 selectedData.add(data.get(columnIndex.get("harvested_at")));
@@ -91,7 +94,8 @@ public class DataEnricher {
                 String article_url = data.get(columnIndex.get("article_url"));
                 String article_hostname = extractSourceNameFromURL(article_url);
                 selectedData.add(article_hostname);
-                System.out.println("article_hostname = " + article_hostname);
+//                System.out.println("article_hostname = " + article_hostname);
+                selectedData.add(data.get(columnIndex.get("overall_source_rank")));
                 return selectedData;
             }).collect(Collectors.toList());
         } catch (IOException e) {
@@ -108,12 +112,12 @@ public class DataEnricher {
         if (indexOf2ndSlash > 0) {
             hostName = article_url.substring(0, indexOf2ndSlash);
         }
-        System.out.println("hostName = " + hostName);
+//        System.out.println("hostName = " + hostName);
         if (hostName.startsWith("www")) {
             hostName = hostName.substring(4);
         }
         if (hostName.endsWith("com") || hostName.endsWith("org") || hostName.endsWith("net")) {
-            System.out.println("ends with com");
+//            System.out.println("ends with com");
             hostName = hostName.substring(0, hostName.length() - 4);
         } else if (hostName.contains("co") && hostName.indexOf("co") > 0) {
             hostName = hostName.substring(0, hostName.indexOf("co") - 1);
@@ -125,7 +129,7 @@ public class DataEnricher {
     private void writeData(List<List<String>> inputData, String fileName) {
         try {
             FileWriter fileWriter = new FileWriter(fileName);
-            String header = "article_id,story_id,harvested_at,entity_name,entity_ticker,entity_sector,article_sentiment,story_name,story_sentiment,story_volume,event_author_rank,article_url\n";
+            String header = "article_id,story_id,harvested_at,entity_name,entity_ticker,entity_sector,article_sentiment,story_name,story_sentiment,story_volume,event_author_rank,article_url,overall_source_rank\n";
             fileWriter.append(header);
             for (List<String> data : inputData) {
                 fileWriter.append(data.toString());
@@ -161,7 +165,7 @@ public class DataEnricher {
                 obj.put("story_volume", Integer.parseInt(d.get(9)));
                 obj.put("event_author_rank", Integer.parseInt(d.get(10)));
                 obj.put("source_name", d.get(11));
-//                obj.put("source_name", d.get(12));
+                obj.put("overall_source_rank", Integer.parseInt(d.get(12)));
                 collection.insert(obj);
             });
 
@@ -182,7 +186,7 @@ public class DataEnricher {
         Reader reader = Files.newBufferedReader(path, Charset.forName("UTF-8"));
         DataEnricher enricher = new DataEnricher(reader);
         List<List<String>> cleanData = enricher.readData();
-        //enricher.writeData(cleanData, "cleandata.csv");
+//        enricher.writeData(cleanData, "cleandata.csv");
         enricher.saveDataInDB(cleanData);
 //        enricher.getDbCollection().drop();
 

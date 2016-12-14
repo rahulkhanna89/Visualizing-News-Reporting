@@ -29,7 +29,7 @@ public class QueryService {
     @RequestMapping(value = "/databysector")
     public List<AccernData> getDataBySector(@RequestParam(value = "sector") String sector, @RequestParam(value = "threshold") int threshold) {
         System.out.println("sector " + sector + " threshold = " + threshold);
-        List<AccernData> storiesByGivenSector = queryOps.getStoriesByGivenSector(sector, threshold);
+        List<AccernData> storiesByGivenSector = queryOps.getStoriesByGivenSector(sector, threshold,6);
         System.out.println("storiesByGivenSector.size() = " + storiesByGivenSector.size());
         return storiesByGivenSector;
     }

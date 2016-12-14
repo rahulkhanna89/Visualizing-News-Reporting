@@ -20,7 +20,13 @@ public class AccernData {
     private final int event_author_rank;
     private final String source_name;
 
-    public AccernData(String article_id, String story_id, Date harvested_at, String entity_name, String entity_ticker, String entity_sector, String article_sentiment, String story_name, String story_sentiment, int story_volume, int event_author_rank, String source_name) {
+    public int getOverall_source_rank() {
+        return overall_source_rank;
+    }
+
+    private final int overall_source_rank;
+
+    public AccernData(String article_id, String story_id, Date harvested_at, String entity_name, String entity_ticker, String entity_sector, String article_sentiment, String story_name, String story_sentiment, int story_volume, int event_author_rank, String source_name, int overall_source_rank) {
         this.article_id = article_id;
         this.story_id = story_id;
         this.harvested_at = harvested_at;
@@ -33,6 +39,7 @@ public class AccernData {
         this.story_volume = story_volume;
         this.event_author_rank = event_author_rank;
         this.source_name = source_name;
+        this.overall_source_rank = overall_source_rank;
     }
 
     public String getArticle_id() {
@@ -82,6 +89,7 @@ public class AccernData {
                 ", story_volume=" + story_volume +
                 ", event_author_rank=" + event_author_rank +
                 ", source_name='" + source_name + '\'' +
+                ", overall_source_rank=" + overall_source_rank +
                 '}';
     }
 
