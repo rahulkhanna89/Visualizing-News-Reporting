@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * Created by rahulkhanna on 09/12/16.
  */
-public class AccernData {
+public class AccernData implements Comparable<AccernData> {
 
     private final String article_id;
     private final String story_id;
@@ -19,10 +19,7 @@ public class AccernData {
     private final int story_volume;
     private final int event_author_rank;
     private final String source_name;
-
-    public int getOverall_source_rank() {
-        return overall_source_rank;
-    }
+    private String shapeAssigned = "Triangle";
 
     private final int overall_source_rank;
 
@@ -109,4 +106,23 @@ public class AccernData {
         return source_name;
     }
 
+    public String getShapeAssigned() {
+        return shapeAssigned;
+    }
+
+    public void setShapeAssigned(String shapeAssigned) {
+        this.shapeAssigned = shapeAssigned;
+    }
+
+    public int getOverall_source_rank() {
+        return overall_source_rank;
+    }
+
+    @Override
+    public int compareTo(AccernData o) {
+        if (o == null || o.getHarvested_at() == null || this.getHarvested_at() == null) {
+            return 0;
+        }
+        return o.getHarvested_at().compareTo(this.getHarvested_at());
+    }
 }

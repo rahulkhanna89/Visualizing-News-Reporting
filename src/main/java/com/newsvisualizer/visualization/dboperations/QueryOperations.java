@@ -28,9 +28,13 @@ public class QueryOperations {
 
 
     public List<AccernData> getStoriesByGivenSector(String sector, int threshold, int sourceRank) {
+
+        BasicDBObject sourceFetchQuery = new BasicDBObject();
+        sourceFetchQuery.put("story_volume", new BasicDBObject("$gte", threshold));
+        List<String> source_name = collection.distinct("source_name", sourceFetchQuery);
         BasicDBObject query = new BasicDBObject();
         query.put("entity_sector", sector);
-        query.put("story_volume", new BasicDBObject("$gt", threshold));
+        query.put("source_name", new BasicDBObject("$in", source_name));
         query.put("overall_source_rank", new BasicDBObject("$gt", sourceRank));
         DBCursor cursor = collection.find(query);
         cursor.sort(new BasicDBObject("story_id", 1));

@@ -2,6 +2,7 @@ package com.newsvisualizer.visualization.services;
 
 import com.mongodb.*;
 import com.newsvisualizer.visualization.beans.AccernData;
+import com.newsvisualizer.visualization.dataprocessing.RankProcessor;
 import com.newsvisualizer.visualization.dboperations.QueryOperations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -25,11 +26,11 @@ public class QueryService {
         this.queryOps = new QueryOperations();
     }
 
-    @CrossOrigin(origins = "http://localhost:8000")
     @RequestMapping(value = "/databysector")
     public List<AccernData> getDataBySector(@RequestParam(value = "sector") String sector, @RequestParam(value = "threshold") int threshold) {
         System.out.println("sector " + sector + " threshold = " + threshold);
         List<AccernData> storiesByGivenSector = queryOps.getStoriesByGivenSector(sector, threshold,6);
+        RankProcessor.populateRank(storiesByGivenSector);
         System.out.println("storiesByGivenSector.size() = " + storiesByGivenSector.size());
         return storiesByGivenSector;
     }
