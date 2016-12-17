@@ -26,6 +26,7 @@ public class QueryService {
         this.queryOps = new QueryOperations();
     }
 
+    @CrossOrigin(origins = "http://localhost:8000")
     @RequestMapping(value = "/databysector")
     public List<AccernData> getDataBySector(@RequestParam(value = "sector") String sector, @RequestParam(value = "threshold") int threshold) {
         System.out.println("sector " + sector + " threshold = " + threshold);
