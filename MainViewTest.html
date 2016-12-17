@@ -1,0 +1,395 @@
+<html>
+<head>
+    <title>News Visualizer</title>
+    <style>
+        .axis path,
+  .axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+  }
+
+  .axis text {
+      font-family: sans-serif;
+      font-size: 11px;
+  }
+    </style>
+    
+</head>
+
+<body>
+    <div id="title">
+            <h1>News Visualizer</h1>
+    </div>
+    <div id="userSelection">
+        Topic :
+        <select id = "topic" onchange="settopic()">
+            <option value="Technology">Technology</option>
+            <option value="Energy">Energy</option>
+            <option value="Public Utilities">Politics</option>
+            <option value="Finance">Finance</option>
+
+        </select>
+        
+        Number of Articles :
+        <select>
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+        </select>
+        
+    </div>
+
+    <div class="heatmap"></div>
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script type="text/javascript">
+        var topics = document.getElementById("topic");
+        var selectedText = topics.options[topics.selectedIndex].text;
+        
+        function settopic()
+        {
+            selectedText = topics.options[topics.selectedIndex].text;
+            alert(selectedText);
+        }
+    </script> 
+    
+    <script>
+
+      //Global variables  
+      var itemSize = 25,
+      cellSize = itemSize - 1,
+      margin = {top: 120, right: 20, bottom: 20, left: 110};
+      
+      var width = 5750 - margin.right - margin.left,
+      height = 5300 - margin.top - margin.bottom;
+
+      var min = [];
+      var max = [];
+      var stories = [];
+      var data;
+
+      var svg = d3.select('.heatmap')
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      d3.xhr("http://localhost:8080/databysector?sector=Public%20Utilities&threshold=30", function(error, result)
+      {
+        response = JSON.parse(result.responseText);
+
+      //d3.json("Testjson.json", function(response)
+      //{   
+        //console.log("JSON data: ",response);
+
+        min = [];
+        max = [];
+        stories = [];
+        //Code to find min and max time of all stories
+        for(var i = 0; i < response.length; i++) 
+		{
+			if (stories.indexOf(response[i].story_id) == -1) 
+				stories.push(response[i].story_id);
+		}
+		
+        console.log("Stories: ",stories);
+        
+        var minimum, maximum;
+        var count = 0;
+        for(var i=0;i<stories.length;i++)
+        {
+        	for(var j=0;j<response.length;j++)
+        	{
+        		if(stories[i]==response[j].story_id)
+        		{
+        			if(count==0)
+        			{
+        				minimum = response[j].harvested_at;
+        				maximum = response[j].harvested_at;
+        			}
+        			count++;
+        			if(minimum>response[j].harvested_at)
+        				minimum = response[j].harvested_at;
+        			if(maximum<response[j].harvested_at)
+        				maximum = response[j].harvested_at;
+        		}
+        	}
+        	count = 0;
+        	min[i] = minimum;
+        	max[i] = maximum;
+        }
+
+        console.log("Minimum of each story: ",min);
+        console.log("Maximum of each story: ",max);
+
+        //Code to return data structure
+        data = response.map(function( item ) {
+        var newItem = {};
+        newItem.Story = item.story_id;
+        newItem.Time = item.harvested_at;
+        newItem.Source = item.source_name;
+        newItem.Storyname = item.entity_name;
+
+        return newItem;
+
+      }) 
+      render(data);
+    });
+
+    function render(all_data)
+    {
+      //Code to set x axis elements and y axis elements  
+      var x_elements = d3.set(all_data.map(function( item ) { return item.Source; } )).values(),
+        y_elements = d3.set(all_data.map(function( item ) { return item.Story; } )).values();  
+ 	
+ 		  
+ 	  //Calculate score for each Source and Story (0: Not reported, 1: Reported but not fastest, 2: Reported and fastest)
+ 	  var scored_rows = new Array();
+      for(var i=0;i<y_elements.length;i++)
+      {
+      	scored_rows.push(new Array());
+      	for(var j=0;j<x_elements.length;j++)
+      	{
+      		var temp = getTime(all_data,y_elements[i],x_elements[j]);
+      		var score;
+      		if(temp == null)	
+      			score = 0;
+      		else if(temp == min[i])
+      			score = 1000;
+      		else
+      			score = 1;
+      		scored_rows[i].push({
+                x : x_elements[j],
+                y : y_elements[i],
+                Score: score
+            })
+      	}
+      }
+
+      //Calculate Total score for each Source
+      var sorted_xelements = new Array();
+      for(var i=0;i<x_elements.length;i++)
+      {
+      	sorted_xelements.push(new Array());
+      	var totalscore = 0;
+      	for(var j=0;j<y_elements.length;j++)
+      	{
+      		var temp = scored_rows[j][i].Score;
+      		totalscore = totalscore + temp;
+      	}
+      	sorted_xelements[i].push({
+      			x: x_elements[i],
+      			TotalScore: totalscore
+      		})
+      }
+	
+	//Sort the Sources according to Total Score
+	for(var i=0;i<sorted_xelements.length;i++)
+	{
+		for(var j=0;j<(sorted_xelements.length - i - 1);j++)
+		{
+			if(sorted_xelements[j][0].TotalScore < sorted_xelements[j+1][0].TotalScore)
+			{
+				var temp = sorted_xelements[j][0];
+				sorted_xelements[j][0] = sorted_xelements[j+1][0];
+				sorted_xelements[j+1][0] = temp;
+			}
+		}
+	} 
+
+	//Set the Sorted sources as X axis elements
+	for(var i=0;i<x_elements.length;i++)
+		x_elements[i] = sorted_xelements[i][0].x;
+
+//Set X axis scale	
+      var xScale = d3.scale.ordinal()
+        .domain(x_elements)
+        .rangeBands([0, x_elements.length * itemSize]);
+
+    //Set X axis    
+    var xAxis = d3.svg.axis()
+        .scale(xScale)
+        .tickFormat(function (d) {
+            return d;
+        })
+        .orient("top");
+
+    //Set Y axis Scale    
+    var yScale = d3.scale.ordinal()
+        .domain(y_elements)
+        .rangeBands([0, y_elements.length * itemSize]);
+
+    //Set rows of the grid    
+    var rows = new Array();
+      for(var i=0;i<y_elements.length;i++)
+      {
+        rows.push(new Array());
+        for(var j=0;j<x_elements.length;j++)
+        {
+            rows[i].push({
+                x : xScale(x_elements[j]),
+                y : yScale(y_elements[i]),
+                Story : y_elements[i],
+                Time : getTime(all_data,y_elements[i],x_elements[j])
+            })
+        }
+      }  
+
+    //Set Y axis  
+    var yAxis = d3.svg.axis()
+        .scale(yScale)
+        .tickFormat(function (d) {
+            return d;
+        })
+        .orient("left");
+
+     //Code to set colorScale for each input
+     var colors = ["#99d8c9","#66c2a4","#41ae76","#238b45","#006d2c","#00441b"];
+     var buckets = 5;   
+     var colorschema = []; 
+     for(var i=0;i<min.length;i++)
+     {
+     	if(min[i]==max[i])
+     		colorschema[i] = d3.scale.quantize()
+        					.domain([min[i]- 1, max[i]])
+        					.range(colors);
+        else
+        colorschema[i] = d3.scale.quantize()
+        					.domain([max[i], min[i]])
+        					.range(colors);
+     }
+
+    //Append all rows to SVG 
+    var all_rows = svg.selectAll(".rows")
+        .data(rows)
+        .enter()
+        .append("g")
+        .attr("class","row");
+    
+    //Append all cells and columns to SVG
+    var cells = all_rows.selectAll('rect')
+        .data(function(d) {
+            return d;})
+        .enter().append('g')
+        .append('rect')
+        .attr('class', 'cell')
+        .attr('width', function(d) { 
+        		return cellSize;
+        })
+        .attr('height', function(d) { 
+        		return cellSize;
+        })
+        .attr('y', function(d) { 
+        		return d.y; })
+        .attr('x', function(d) { 
+        		return d.x; })
+        .attr('stroke','black')
+        .attr('fill', function(d) {
+        	//if(d.Time == null)
+        		return 'transparent';
+        	var match;
+           	for(var i=0;i<stories.length;i++)
+           	{
+               	if(d.Story==stories[i])
+               	{
+                   	match = i;
+                   	break;
+                }
+            }
+               return colorschema[match](d.Time);
+         });
+   	
+   	//Append all traingles to SVG
+   	var traingles = all_rows.selectAll(".point")
+      .data(function(d) { return d;})
+    .enter().append("path")
+      .attr("class", "point")
+      .attr("d", d3.svg.symbol().type("triangle-up").size(cellSize*8))
+      .attr("transform", function(d) { return "translate(" + (d.x + cellSize/2) + "," + (d.y + cellSize/2) + ")"; })
+      .attr('fill', function(d) {
+      	if(d.Time == null)
+      		return 'transparent';
+      	else
+        {
+        	var match;
+           	for(var i=0;i<stories.length;i++)
+           	{
+               	if(d.Story==stories[i])
+               	{
+                   	match = i;
+                   	break;
+                }
+            }
+            if(d.Time != min[match])
+        		return 'green';
+        	else
+        		return 'transparent';
+        }
+      });
+
+   //Append all circles to SVG     
+   var circles = all_rows.selectAll('circle')
+        .data(function(d) {
+            return d;
+        })
+        .enter().append('g')
+        .append('circle')
+        .attr('cx', function(d) { return d.x + cellSize/2})
+        .attr('cy', function(d) { return d.y + cellSize/2})
+        .attr('r', (cellSize/2 - 1))
+        .attr('fill', function(d) {
+        	if(d.Time == null)
+        		return 'transparent';
+        	else
+        	{
+        		var match;
+            	for(var i=0;i<stories.length;i++)
+            	{
+                	if(d.Story==stories[i])
+                	{
+                    	match = i;
+                    	break;
+                	}
+            	}
+            	if(d.Time == min[match])
+        			return 'green';
+        		else
+        			return 'transparent';
+        	}
+        });
+
+   //Append Y axis 
+   svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+        .selectAll('text')
+        .attr('font-weight', 'normal');
+
+    //Append X axis    
+    svg.append("g")
+        .attr("class", "x axis")
+        .call(xAxis)
+        .selectAll('text')
+        .attr('font-weight', 'normal')
+        .style("text-anchor", "start")
+        .attr("dx", ".8em")
+        .attr("dy", ".5em")
+        .attr("transform", function (d) {
+            return "rotate(-65)";
+        });
+    }
+
+    function getTime(all_data,story,source)
+    {
+        for(var i=0;i<all_data.length;i++)
+        {
+            if(all_data[i].Story == story && all_data[i].Source == source)
+                return all_data[i].Time;
+        }
+    } 
+
+    </script>
+</body>
+
+</html>
