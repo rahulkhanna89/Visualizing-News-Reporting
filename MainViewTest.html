@@ -75,7 +75,7 @@
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-      d3.xhr("http://localhost:8080/databysector?sector=Public%20Utilities&threshold=30", function(error, result)
+      d3.xhr("http://localhost:8080/databysector?sector=Technology&threshold=30", function(error, result)
       {
         response = JSON.parse(result.responseText);
 
@@ -143,8 +143,7 @@
       var x_elements = d3.set(all_data.map(function( item ) { return item.Source; } )).values(),
         y_elements = d3.set(all_data.map(function( item ) { return item.Story; } )).values();  
  	
- 		  
- 	  //Calculate score for each Source and Story (0: Not reported, 1: Reported but not fastest, 2: Reported and fastest)
+ 	  //Calculate score for each Source and Story (0: Not reported, 1: Reported but not fastest, 1000: Reported and fastest)
  	  var scored_rows = new Array();
       for(var i=0;i<y_elements.length;i++)
       {
@@ -169,6 +168,7 @@
 
       //Calculate Total score for each Source
       var sorted_xelements = new Array();
+      var sum_totalscore=0,avg_totalscore = 0;
       for(var i=0;i<x_elements.length;i++)
       {
       	sorted_xelements.push(new Array());
@@ -182,7 +182,9 @@
       			x: x_elements[i],
       			TotalScore: totalscore
       		})
+      	sum_totalscore =sum_totalscore + totalscore;
       }
+	  avg_totalscore = sum_totalscore/x_elements.length;
 	
 	//Sort the Sources according to Total Score
 	for(var i=0;i<sorted_xelements.length;i++)
@@ -199,13 +201,22 @@
 	} 
 
 	//Set the Sorted sources as X axis elements
+	var newx_elements = [];
+	var iterator =0;
 	for(var i=0;i<x_elements.length;i++)
-		x_elements[i] = sorted_xelements[i][0].x;
+	{
+		if(sorted_xelements[i][0].TotalScore>avg_totalscore)
+		{
+			newx_elements[iterator] = sorted_xelements[i][0].x;
+			iterator++;
+		}
+	}
+	console.log(newx_elements);
 
-//Set X axis scale	
+ 		  //Set X axis scale	
       var xScale = d3.scale.ordinal()
-        .domain(x_elements)
-        .rangeBands([0, x_elements.length * itemSize]);
+        .domain(newx_elements)
+        .rangeBands([0, newx_elements.length * itemSize]);
 
     //Set X axis    
     var xAxis = d3.svg.axis()
@@ -225,13 +236,13 @@
       for(var i=0;i<y_elements.length;i++)
       {
         rows.push(new Array());
-        for(var j=0;j<x_elements.length;j++)
+        for(var j=0;j<newx_elements.length;j++)
         {
             rows[i].push({
-                x : xScale(x_elements[j]),
+                x : xScale(newx_elements[j]),
                 y : yScale(y_elements[i]),
                 Story : y_elements[i],
-                Time : getTime(all_data,y_elements[i],x_elements[j])
+                Time : getTime(all_data,y_elements[i],newx_elements[j])
             })
         }
       }  
