@@ -53,8 +53,6 @@ public class RankProcessor {
                     return article;
                 }).collect(Collectors.toList());
                 articlesPerRankForAStory.put(rank, dataForGivenRank);
-//                processedData.addAll(dataForGivenRank);
-                System.out.println("Number of articles for rank " + rank + " = " + dataForGivenRank.size());
             });
             articlesByRankForAStory.put(s, articlesPerRankForAStory);
         });
@@ -67,7 +65,7 @@ public class RankProcessor {
     }
 
     private static Map<String, Map<Integer, Double>> sourceRankByMonth(List<AccernData> articlesByRankForAStory) {
-        Map<String, Map<Integer,Double>> rankOfSourcesByMonth = new HashMap<>();
+        Map<String, Map<Integer, Double>> rankOfSourcesByMonth = new HashMap<>();
         Map<String, Map<Integer, List<AccernData>>> articlesByMonthAndSource = new HashMap<>();
         for (int i = 0; i < 12; i++) {
             int monthNeeded = i;
@@ -86,9 +84,9 @@ public class RankProcessor {
                 for (AccernData article : articles) {
                     totalRank += article.getSourceRank();
                 }
-                double avgSourceRank = totalRank / data.getValue().size();
+                double avgSourceRank = totalRank / articles.size();
                 if (rankOfSourcesByMonth.containsKey(sourceName)) {
-                    Map<Integer,Double> ranks = rankOfSourcesByMonth.get(sourceName);
+                    Map<Integer, Double> ranks = rankOfSourcesByMonth.get(sourceName);
                     ranks.put(month, avgSourceRank);
                 } else {
                     Map<Integer, Double> ranks = new HashMap<Integer, Double>();
@@ -169,7 +167,6 @@ public class RankProcessor {
             long currentStartTime = startTime;
             dateRange.put("startTime", start.getTime());
             double factor = (float) (1 / Math.pow(2.0, i));
-            System.out.println("factor = " + factor);
             long cutoffTime = (long) (startTime + timeRangeForThisStory * factor);
             Calendar endTime = Calendar.getInstance();
             endTime.setTimeInMillis(cutoffTime);
