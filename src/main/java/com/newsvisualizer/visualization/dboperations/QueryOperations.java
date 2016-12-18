@@ -13,15 +13,13 @@ public class QueryOperations {
 
     private final DBCollection collection;
 
-    public QueryOperations() {
+    public QueryOperations() throws UnknownHostException {
         Mongo client = null;
-        try {
-            client = new MongoClient("127.0.0.1");
-        } catch (UnknownHostException e) {
-            System.out.println(e.getMessage());
-        }
+        client = new MongoClient("127.0.0.1");
         DB db = client.getDB("iv");
         this.collection = db.getCollection("data");
+        this.collection.createIndex(new BasicDBObject("harvested_at", 1));
+        this.collection.createIndex(new BasicDBObject("story_id", 1));
     }
 
 
@@ -30,7 +28,6 @@ public class QueryOperations {
         BasicDBObject sourceFetchQuery = new BasicDBObject();
         sourceFetchQuery.put("story_volume", new BasicDBObject("$gte", threshold));
         DBCursor storyIdCursor = collection.find(sourceFetchQuery);
-
         storyIdCursor.sort(new BasicDBObject("story_volume", -1));
         System.out.println("storyIdCursor.size() = " + storyIdCursor.size());
         Set<String> storyIds = new HashSet<>(50);
@@ -41,13 +38,15 @@ public class QueryOperations {
             DBObject dbObject = storyIdCursor.next();
             storyIds.add((String) dbObject.get("story_id"));
         }
+        storyIdCursor.close();
         System.out.println("storyIds.size() = " + storyIds.size());
         BasicDBObject query = new BasicDBObject();
         query.put("entity_sector", sector);
         query.put("story_id", new BasicDBObject("$in", storyIds));
         query.put("overall_source_rank", new BasicDBObject("$gt", sourceRank));
+
         DBCursor cursor = collection.find(query);
-        cursor.sort(new BasicDBObject("harvested_at", 1));
+//        cursor.sort(new BasicDBObject("harvested_at", 1));
         System.out.println("cursor.hasNext() = " + cursor.hasNext());
         List<AccernData> dataToReturn = new ArrayList<>();
         while (cursor.hasNext()) {
@@ -61,10 +60,11 @@ public class QueryOperations {
             dataToReturn.add(data);
 //            System.out.println("data.toString() = " + data.toString());
         }
+        cursor.close();
         return dataToReturn;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnknownHostException {
         QueryOperations ops = new QueryOperations();
         List<AccernData> storiesByGivenSector = ops.getStoriesByGivenSector("Technology", 500, 6);
         System.out.println("storiesByGivenSector = " + storiesByGivenSector.size());

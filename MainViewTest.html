@@ -26,16 +26,16 @@
         <select id = "topic" onchange="settopic()">
             <option value="Technology">Technology</option>
             <option value="Energy">Energy</option>
-            <option value="Public Utilities">Politics</option>
+            <option value="Public Utilities">Public Utilities</option>
             <option value="Finance">Finance</option>
 
         </select>
         
         Number of Articles :
-        <select>
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="30">30</option>
+        <select id = "number_articles" onchange="setarticles()">
+            <option value="500">500</option>
+            <option value="600">600</option>
+            <option value="1000">1000</option>
         </select>
         
     </div>
@@ -45,20 +45,27 @@
     <script type="text/javascript">
         var topics = document.getElementById("topic");
         var selectedText = topics.options[topics.selectedIndex].text;
-        
+        var selectedArticles = number_articles.options[number_articles.selectedIndex].text;
+        datacall();
+
         function settopic()
         {
             selectedText = topics.options[topics.selectedIndex].text;
-            alert(selectedText);
+            svg.selectAll("*").remove();
+            datacall();
         }
-    </script> 
-    
-    <script>
+
+        function setarticles()
+        {
+        	selectedArticles = number_articles.options[number_articles.selectedIndex].text;
+        	svg.selectAll("*").remove();
+        	datacall();
+        }
 
       //Global variables  
       var itemSize = 25,
       cellSize = itemSize - 1,
-      margin = {top: 120, right: 20, bottom: 20, left: 110};
+      margin = {top: 120, right: 20, bottom: 20, left: 140};
       
       var width = 5750 - margin.right - margin.left,
       height = 5300 - margin.top - margin.bottom;
@@ -72,18 +79,23 @@
         .append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
+        //.attr("viewBox","0 0 2620 2160")
+        //.attr("preserveAspectRatio","xMinYMin")
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-      d3.xhr("http://localhost:8080/databysector?sector=Technology&threshold=30", function(error, result)
-      {
-        response = JSON.parse(result.responseText);
-
+      function datacall()
+      {  
+      	console.log(selectedText,selectedArticles);
+      	d3.xhr("http://localhost:8080/databysector?sector="+selectedText+"&threshold="+selectedArticles+"", function(error, result)
+      	{
+       	 response = JSON.parse(result.responseText);
+         console.log("JSON data: ",response);
       //d3.json("Testjson.json", function(response)
       //{   
         //console.log("JSON data: ",response);
 
-        min = [];
+        /*min = [];
         max = [];
         stories = [];
         //Code to find min and max time of all stories
@@ -93,7 +105,7 @@
 				stories.push(response[i].story_id);
 		}
 		
-        console.log("Stories: ",stories);
+        //console.log("Stories: ",stories);
         
         var minimum, maximum;
         var count = 0;
@@ -118,33 +130,35 @@
         	count = 0;
         	min[i] = minimum;
         	max[i] = maximum;
-        }
+        }*/
 
-        console.log("Minimum of each story: ",min);
-        console.log("Maximum of each story: ",max);
+        //console.log("Minimum of each story: ",min);
+        //console.log("Maximum of each story: ",max);
 
         //Code to return data structure
-        data = response.map(function( item ) {
-        var newItem = {};
-        newItem.Story = item.story_id;
-        newItem.Time = item.harvested_at;
-        newItem.Source = item.source_name;
-        newItem.Storyname = item.entity_name;
+        	data = response.map(function( item ) {
+        	var newItem = {};
+        	newItem.Story = item.story_id;
+        	newItem.Time = item.harvested_at;
+        	newItem.Source = item.source_name;
+        	newItem.Storyname = item.entity_name;
+        	newItem.shape = item.shapeAssigned;
 
-        return newItem;
+        	return newItem;
 
-      }) 
-      render(data);
-    });
+      	}) 
+      	render(data);
+    	});
+    }
 
     function render(all_data)
-    {
+    {	
       //Code to set x axis elements and y axis elements  
       var x_elements = d3.set(all_data.map(function( item ) { return item.Source; } )).values(),
         y_elements = d3.set(all_data.map(function( item ) { return item.Story; } )).values();  
- 	
+
  	  //Calculate score for each Source and Story (0: Not reported, 1: Reported but not fastest, 1000: Reported and fastest)
- 	  var scored_rows = new Array();
+ 	  /*var scored_rows = new Array();
       for(var i=0;i<y_elements.length;i++)
       {
       	scored_rows.push(new Array());
@@ -211,12 +225,12 @@
 			iterator++;
 		}
 	}
-	console.log(newx_elements);
+	console.log(newx_elements);*/
 
  		  //Set X axis scale	
       var xScale = d3.scale.ordinal()
-        .domain(newx_elements)
-        .rangeBands([0, newx_elements.length * itemSize]);
+        .domain(x_elements)
+        .rangeBands([0, x_elements.length * itemSize]);
 
     //Set X axis    
     var xAxis = d3.svg.axis()
@@ -236,27 +250,27 @@
       for(var i=0;i<y_elements.length;i++)
       {
         rows.push(new Array());
-        for(var j=0;j<newx_elements.length;j++)
+        for(var j=0;j<x_elements.length;j++)
         {
             rows[i].push({
-                x : xScale(newx_elements[j]),
+                x : xScale(x_elements[j]),
                 y : yScale(y_elements[i]),
                 Story : y_elements[i],
-                Time : getTime(all_data,y_elements[i],newx_elements[j])
+                Shape : getShape(all_data,y_elements[i],x_elements[j])
             })
         }
       }  
-
+      
     //Set Y axis  
     var yAxis = d3.svg.axis()
         .scale(yScale)
         .tickFormat(function (d) {
-            return d;
+            return getStoryname(all_data,d);
         })
         .orient("left");
 
      //Code to set colorScale for each input
-     var colors = ["#99d8c9","#66c2a4","#41ae76","#238b45","#006d2c","#00441b"];
+     /*var colors = ["#99d8c9","#66c2a4","#41ae76","#238b45","#006d2c","#00441b"];
      var buckets = 5;   
      var colorschema = []; 
      for(var i=0;i<min.length;i++)
@@ -269,9 +283,10 @@
         colorschema[i] = d3.scale.quantize()
         					.domain([max[i], min[i]])
         					.range(colors);
-     }
+     }*/
 
     //Append all rows to SVG 
+    console.log("plotting started");
     var all_rows = svg.selectAll(".rows")
         .data(rows)
         .enter()
@@ -295,8 +310,11 @@
         		return d.y; })
         .attr('x', function(d) { 
         		return d.x; })
-        .attr('stroke','black')
+        .attr('stroke','grey')
         .attr('fill', function(d) {
+            if(d.Shape == "Circle")
+                return 'red';
+            else
         	//if(d.Time == null)
         		return 'transparent';
         	var match;
@@ -316,27 +334,14 @@
       .data(function(d) { return d;})
     .enter().append("path")
       .attr("class", "point")
-      .attr("d", d3.svg.symbol().type("triangle-up").size(cellSize*8))
+      .attr("d", d3.svg.symbol().type("diamond").size(cellSize*8))
       .attr("transform", function(d) { return "translate(" + (d.x + cellSize/2) + "," + (d.y + cellSize/2) + ")"; })
+      .attr('opacity',0.5)
       .attr('fill', function(d) {
-      	if(d.Time == null)
-      		return 'transparent';
-      	else
-        {
-        	var match;
-           	for(var i=0;i<stories.length;i++)
-           	{
-               	if(d.Story==stories[i])
-               	{
-                   	match = i;
-                   	break;
-                }
-            }
-            if(d.Time != min[match])
+      	if(d.Shape == "Triangle")
         		return 'green';
         	else
         		return 'transparent';
-        }
       });
 
    //Append all circles to SVG     
@@ -349,25 +354,12 @@
         .attr('cx', function(d) { return d.x + cellSize/2})
         .attr('cy', function(d) { return d.y + cellSize/2})
         .attr('r', (cellSize/2 - 1))
+        .attr('opacity',0.5)
         .attr('fill', function(d) {
-        	if(d.Time == null)
-        		return 'transparent';
+        	if(d.Shape == "Circle")
+        		return 'green';
         	else
-        	{
-        		var match;
-            	for(var i=0;i<stories.length;i++)
-            	{
-                	if(d.Story==stories[i])
-                	{
-                    	match = i;
-                    	break;
-                	}
-            	}
-            	if(d.Time == min[match])
-        			return 'green';
-        		else
-        			return 'transparent';
-        	}
+        		return 'transparent';
         });
 
    //Append Y axis 
@@ -389,17 +381,26 @@
         .attr("transform", function (d) {
             return "rotate(-65)";
         });
+        console.log("ploting completed");
     }
 
-    function getTime(all_data,story,source)
+    function getShape(all_data,story,source)
     {
         for(var i=0;i<all_data.length;i++)
         {
             if(all_data[i].Story == story && all_data[i].Source == source)
-                return all_data[i].Time;
+                return all_data[i].shape;
         }
     } 
 
+    function getStoryname(all_data,story)
+    {
+    	for(var i=0;i<all_data.length;i++)
+    	{
+    		if(all_data[i].Story == story)
+    			return all_data[i].Storyname;
+    	}
+    }
     </script>
 </body>
 

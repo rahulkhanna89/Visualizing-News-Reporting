@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -19,18 +22,22 @@ public class QueryService {
 
     private QueryOperations queryOps;
 
-    private Map<Integer, Map<String, Double>> fetchedData;
+    private Map<String, Map<Integer, Double>> fetchedData;
 
-    public Map<Integer, Map<String, Double>> getFetchedData() {
+    public Map<String, Map<Integer, Double>> getFetchedData() {
         return fetchedData;
     }
 
-    public void setFetchedData(Map<Integer, Map<String, Double>> fetchedData) {
+    public void setFetchedData(Map<String, Map<Integer, Double>> fetchedData) {
         this.fetchedData = fetchedData;
     }
 
     public QueryService() {
-        this.queryOps = new QueryOperations();
+        try {
+            this.queryOps = new QueryOperations();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -39,14 +46,16 @@ public class QueryService {
     public List<AccernData> getDataBySector(@RequestParam(value = "sector") String sector, @RequestParam(value = "threshold") int threshold) {
         System.out.println("sector " + sector + " threshold = " + threshold);
         List<AccernData> storiesByGivenSector = queryOps.getStoriesByGivenSector(sector, threshold, 6);
-        Map<Integer, Map<String, Double>> sourceRanksByMonth = RankProcessor.populateRank(storiesByGivenSector);
-        setFetchedData(sourceRanksByMonth);
+        Map<String, Object> processedData = RankProcessor.populateRank(storiesByGivenSector);
+        setFetchedData((Map<String, Map<Integer, Double>>) processedData.get("auxilaryData"));
         System.out.println("storiesByGivenSector.size() = " + storiesByGivenSector.size());
-        return storiesByGivenSector;
+        List<AccernData> dataToReturn = new ArrayList<>();
+        dataToReturn.addAll((Collection<? extends AccernData>) processedData.get("mainViewData"));
+        return dataToReturn ;
     }
 
     @RequestMapping(value = "/getSourceRankData")
-    public Map<Integer, Map<String, Double>> getSourceRankData(){
+    public Map<String, Map<Integer, Double>> getSourceRankData(){
         return getFetchedData();
     }
 

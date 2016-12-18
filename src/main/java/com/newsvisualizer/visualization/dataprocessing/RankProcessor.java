@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public class RankProcessor {
 
 
-    public static Map<Integer, Map<String, Double>> populateRank(List<AccernData> data) {
+    public static Map<String, Object> populateRank(List<AccernData> data) {
         Map<String, List<AccernData>> articleByStoriesId = new HashMap<>();
         data.stream().forEach(article -> {
             if (articleByStoriesId.containsKey(article.getStory_id())) {
@@ -24,37 +24,51 @@ public class RankProcessor {
         });
         Map<String, Map<Integer, List<AccernData>>> articlesByRankForAStory = new HashMap<>();
         List<AccernData> processedData = new ArrayList<AccernData>();
+        List<String> sourceNameWhoWereAtLeastFastestOnce = new ArrayList<>();
         articleByStoriesId.forEach((s, datas) -> {
             Collections.sort(datas);
             AccernData fastestArticle = datas.get(0);
             fastestArticle.setShapeAssigned("Circle");
+            sourceNameWhoWereAtLeastFastestOnce.add(fastestArticle.getSource_name());
             fastestArticle.setSourceScore(100);
+
+        });
+        Map<String, List<AccernData>> filteredStories = new HashMap<>();
+        articleByStoriesId.forEach((s, datas) -> {
+            List<AccernData> collect = datas.stream().filter(article -> sourceNameWhoWereAtLeastFastestOnce.contains(article.getSource_name())).collect(Collectors.toList());
+            filteredStories.put(s, collect);
+            processedData.addAll(collect);
+        });
+        filteredStories.forEach((s, datas) -> {
+            AccernData fastestArticle = datas.get(0);
             System.out.println("datas = " + datas.size());
-//            if (datas.size() > 1) {
-                long timeRangeForThisStory = datas.get(datas.size() - 1).getHarvested_at().getTime() - fastestArticle.getHarvested_at().getTime();
-                Map<Integer, Map<String, Date>> timeRangePerRank = generateTimeCutOffPerRank(timeRangeForThisStory, fastestArticle.getHarvested_at().getTime());
-                Map<Integer, List<AccernData>> articlesPerRankForAStory = new HashMap<>();
-                timeRangePerRank.forEach((rank, range) -> {
-                    System.out.println("Filtering articles for rank = " + rank);
-                    List<AccernData> dataForGivenRank = datas.stream().filter((article) -> article.getHarvested_at().after(range.get("startTime")) && article.getHarvested_at().before(range.get("endTime"))
-                    ).map(article -> {
-                        article.setSourceRank(rank);
-                        return article;
-                    }).collect(Collectors.toList());
-                    articlesPerRankForAStory.put(rank, dataForGivenRank);
-                    processedData.addAll(dataForGivenRank);
-                    System.out.println("Number of articles for rank "+rank+" = "+dataForGivenRank.size());
-                });
-                articlesByRankForAStory.put(s, articlesPerRankForAStory);
-//            }
+            long timeRangeForThisStory = datas.get(datas.size() - 1).getHarvested_at().getTime() - fastestArticle.getHarvested_at().getTime();
+            Map<Integer, Map<String, Date>> timeRangePerRank = generateTimeCutOffPerRank(timeRangeForThisStory, fastestArticle.getHarvested_at().getTime());
+            Map<Integer, List<AccernData>> articlesPerRankForAStory = new HashMap<>();
+            timeRangePerRank.forEach((rank, range) -> {
+                System.out.println("Filtering articles for rank = " + rank);
+                List<AccernData> dataForGivenRank = datas.stream().filter((article) -> article.getHarvested_at().after(range.get("startTime")) && article.getHarvested_at().before(range.get("endTime"))
+                ).map(article -> {
+                    article.setSourceRank(rank);
+                    return article;
+                }).collect(Collectors.toList());
+                articlesPerRankForAStory.put(rank, dataForGivenRank);
+//                processedData.addAll(dataForGivenRank);
+                System.out.println("Number of articles for rank " + rank + " = " + dataForGivenRank.size());
+            });
+            articlesByRankForAStory.put(s, articlesPerRankForAStory);
         });
 
-        Map<Integer, Map<String, Double>> ranksByMonth = sourceRankByMonth(processedData);
-        return ranksByMonth;
+        Map<String, Map<Integer, Double>> ranksByMonth = sourceRankByMonth(processedData);
+        Map<String, Object> returnedData = new HashMap<>();
+        returnedData.put("mainViewData", processedData);
+        returnedData.put("auxilaryData", ranksByMonth);
+        return returnedData;
     }
 
-    private static Map<Integer, Map<String, Double>> sourceRankByMonth(List<AccernData> articlesByRankForAStory) {
-        Map<Integer, Map<String, Double>> sourceRanksByMonth = new HashMap<>();
+    private static Map<String, Map<Integer, Double>> sourceRankByMonth(List<AccernData> articlesByRankForAStory) {
+        Map<String, Map<Integer,Double>> rankOfSourcesByMonth = new HashMap<>();
+        Map<String, Map<Integer, List<AccernData>>> articlesByMonthAndSource = new HashMap<>();
         for (int i = 0; i < 12; i++) {
             int monthNeeded = i;
             List<AccernData> articlesByMonth = articlesByRankForAStory.stream().filter(article -> {
@@ -62,33 +76,89 @@ public class RankProcessor {
                 cal.setTime(article.getHarvested_at());
                 return cal.get(Calendar.MONTH) == monthNeeded;
             }).collect(Collectors.toList());
-            Map<String, List<AccernData>> articlesByMonthAndSource = new HashMap<>();
-            articlesByMonth.stream().forEach(article -> {
-                if (articlesByMonthAndSource.containsKey(article.getSource_name())) {
-                    articlesByMonthAndSource.get(article.getSource_name()).add(article);
-                } else {
-                    List<AccernData> articlesBySource = new ArrayList<>();
-                    articlesBySource.add(article);
-                    articlesByMonthAndSource.put(article.getSource_name(), articlesBySource);
-                }
-            });
-            Map<String, Double> sourceRankForAMonth = new HashMap<>();
+            segregateMonthsDataBySource(articlesByMonth, articlesByMonthAndSource, monthNeeded);
 
-            articlesByMonthAndSource.forEach((sourceName, articles) -> {
-                int sourceRank = 0;
-                for (AccernData article : articles) {
-                    sourceRank += article.getSourceRank();
-                }
-                System.out.println("month = " + monthNeeded);
-                System.out.print("sourceName = " + sourceName);
-                System.out.println(" sourceRank = " + sourceRank);
-                System.out.println("articles.size() = " + articles.size());
-                sourceRankForAMonth.put(sourceName, (double) (sourceRank / articles.size()));
-            });
-            sourceRanksByMonth.put(monthNeeded, sourceRankForAMonth);
         }
-        return sourceRanksByMonth;
+        for (Map.Entry<String, Map<Integer, List<AccernData>>> data : articlesByMonthAndSource.entrySet()) {
+            String sourceName = data.getKey();
+            data.getValue().forEach((month, articles) -> {
+                int totalRank = 0;
+                for (AccernData article : articles) {
+                    totalRank += article.getSourceRank();
+                }
+                double avgSourceRank = totalRank / data.getValue().size();
+                if (rankOfSourcesByMonth.containsKey(sourceName)) {
+                    Map<Integer,Double> ranks = rankOfSourcesByMonth.get(sourceName);
+                    ranks.put(month, avgSourceRank);
+                } else {
+                    Map<Integer, Double> ranks = new HashMap<Integer, Double>();
+                    ranks.put(month, avgSourceRank);
+                    rankOfSourcesByMonth.put(sourceName, ranks);
+                }
+            });
+        }
+        return rankOfSourcesByMonth;
     }
+
+    private static void segregateMonthsDataBySource(List<AccernData> articlesByMonth, Map<String, Map<Integer, List<AccernData>>> articlesByMonthAndSource, int monthNeeded) {
+        for (AccernData article : articlesByMonth) {
+            if (articlesByMonthAndSource.containsKey(article.getSource_name())) {
+                Map<Integer, List<AccernData>> articlesOfASource = articlesByMonthAndSource.get(article.getSource_name());
+                if (articlesOfASource.containsKey(monthNeeded)) {
+                    List<AccernData> accernDatas = articlesOfASource.get(monthNeeded);
+                    accernDatas.add(article);
+                } else {
+                    List<AccernData> accernDatas = new ArrayList<>();
+                    accernDatas.add(article);
+                    articlesOfASource.put(monthNeeded, accernDatas);
+                }
+            } else {
+                Map<Integer, List<AccernData>> articlesOfASource = new HashMap<>();
+                List<AccernData> accernDatas = new ArrayList<>();
+                accernDatas.add(article);
+                articlesOfASource.put(monthNeeded, accernDatas);
+                articlesByMonthAndSource.put(article.getSource_name(), articlesOfASource);
+            }
+        }
+    }
+
+
+//    private static Map<String, List<Double>> sourceRankByMonth(List<AccernData> articlesByRankForAStory) {
+//        Map<String, List<Double>> sourceRanksByMonth = new HashMap<>();
+//        Map<String, Map<Integer,List<AccernData>>> articlesByMonthAndSource = new HashMap<>();
+//        for (int i = 0; i < 12; i++) {
+//            int monthNeeded = i;
+//            List<AccernData> articlesByMonth = articlesByRankForAStory.stream().filter(article -> {
+//                Calendar cal = Calendar.getInstance();
+//                cal.setTime(article.getHarvested_at());
+//                return cal.get(Calendar.MONTH) == monthNeeded;
+//            }).collect(Collectors.toList());
+//            Map<Integer, List<AccernData>> articlesForAMonth = new HashMap<>();
+//            articlesByMonth.stream().forEach(article -> {
+//                if (articlesByMonthAndSource.containsKey(article.getSource_name())) {
+//                    articlesByMonthAndSource.get(article.getSource_name()).add(article);
+//                } else {
+//                    List<AccernData> articlesBySource = new ArrayList<>();
+//                    articlesBySource.add(article);
+//
+//                }
+//                articlesForAMonth.put(monthNeeded,a)
+//                articlesByMonthAndSource.put(article.getSource_name(), articlesBySource);
+//            });
+//        }
+//
+//        for (Map.Entry<String, List<AccernData>> data : articlesByMonthAndSource.entrySet()) {
+//            List<Double> sourceRankForAMonth = new ArrayList<>(12);
+//            int sourceRank = 0;
+//            for (AccernData article : data.getValue()) {
+//                sourceRank += article.getSourceRank();
+//            }
+//            sourceRankForAMonth.add((double) (sourceRank / data.getValue().size()));
+//            sourceRanksByMonth.put(data.getKey(),sourceRankForAMonth);
+//        }
+//
+//        return sourceRanksByMonth;
+//    }
 
     private static Map<Integer, Map<String, Date>> generateTimeCutOffPerRank(long timeRangeForThisStory, long startTime) {
         Map<Integer, Map<String, Date>> timeRangePerRank = new HashMap<>(8);

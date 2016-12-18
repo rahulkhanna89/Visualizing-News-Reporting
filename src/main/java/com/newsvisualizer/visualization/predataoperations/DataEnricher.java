@@ -166,10 +166,10 @@ public class DataEnricher {
         Path path = Paths.get("data.csv");
         Reader reader = Files.newBufferedReader(path, Charset.forName("UTF-8"));
         DataEnricher enricher = new DataEnricher(reader);
-//        List<List<String>> cleanData = enricher.readData();
+        List<List<String>> cleanData = enricher.readData();
 //        enricher.writeData(cleanData, "cleandata.csv");
-//        enricher.saveDataInDB(cleanData);
-        enricher.getDbCollection().drop();
+        enricher.saveDataInDB(cleanData);
+//        enricher.getDbCollection().drop();
 
         System.out.println(enricher.getDbCollection().count());
 
