@@ -19,13 +19,13 @@ public class QueryService {
 
     private QueryOperations queryOps;
 
-    private List<AccernData> fetchedData;
+    private Map<Integer, Map<String, Double>> fetchedData;
 
-    public List<AccernData> getFetchedData() {
+    public Map<Integer, Map<String, Double>> getFetchedData() {
         return fetchedData;
     }
 
-    public void setFetchedData(List<AccernData> fetchedData) {
+    public void setFetchedData(Map<Integer, Map<String, Double>> fetchedData) {
         this.fetchedData = fetchedData;
     }
 
@@ -39,15 +39,15 @@ public class QueryService {
     public List<AccernData> getDataBySector(@RequestParam(value = "sector") String sector, @RequestParam(value = "threshold") int threshold) {
         System.out.println("sector " + sector + " threshold = " + threshold);
         List<AccernData> storiesByGivenSector = queryOps.getStoriesByGivenSector(sector, threshold, 6);
-        setFetchedData(storiesByGivenSector);
+        Map<Integer, Map<String, Double>> sourceRanksByMonth = RankProcessor.populateRank(storiesByGivenSector);
+        setFetchedData(sourceRanksByMonth);
         System.out.println("storiesByGivenSector.size() = " + storiesByGivenSector.size());
         return storiesByGivenSector;
     }
 
     @RequestMapping(value = "/getSourceRankData")
     public Map<Integer, Map<String, Double>> getSourceRankData(){
-        Map<Integer, Map<String, Double>> sourceRanksByMonth = RankProcessor.populateRank(getFetchedData());
-        return sourceRanksByMonth;
+        return getFetchedData();
     }
 
 }

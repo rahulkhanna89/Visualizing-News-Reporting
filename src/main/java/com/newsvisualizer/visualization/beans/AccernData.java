@@ -69,7 +69,10 @@ public class AccernData implements Comparable<AccernData> {
                 ", story_name='" + story_name + '\'' +
                 ", story_volume=" + story_volume +
                 ", source_name='" + source_name + '\'' +
+                ", shapeAssigned='" + shapeAssigned + '\'' +
                 ", overall_source_rank=" + overall_source_rank +
+                ", sourceScore=" + sourceScore +
+                ", sourceRank=" + sourceRank +
                 '}';
     }
 

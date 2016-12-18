@@ -30,13 +30,9 @@ public class DataEnricher {
         columnIndex.put("story_id", 1);
         columnIndex.put("harvested_at", 2);
         columnIndex.put("entity_name", 3);
-//        columnIndex.put("entity_ticker", 4);
         columnIndex.put("entity_sector", 9);
-//        columnIndex.put("article_sentiment", 36);
         columnIndex.put(("story_name"), 5);
-//        columnIndex.put("story_sentiment", 29);
         columnIndex.put("story_volume", 33);
-//        columnIndex.put("event_author_rank", 40);
         columnIndex.put("article_url", 52);
         columnIndex.put("overall_source_rank", 37);
     }
@@ -59,16 +55,10 @@ public class DataEnricher {
                         data.get(columnIndex.get("harvested_at")).isEmpty() ||
                         data.get(columnIndex.get("entity_name")) == null ||
                         data.get(columnIndex.get("entity_name")).isEmpty() ||
-//                        data.get(columnIndex.get("entity_ticker")) == null ||
-//                        data.get(columnIndex.get("entity_sector")) == null ||
                         data.get(columnIndex.get("entity_sector")).isEmpty() ||
-//                        data.get(columnIndex.get("article_sentiment")) == null ||
                         data.get(columnIndex.get("story_name")) == null ||
-//                        data.get(columnIndex.get("story_sentiment")) == null ||
-//                        data.get(columnIndex.get("story_sentiment")).isEmpty() ||
                         data.get(columnIndex.get("story_volume")) == null ||
                         data.get(columnIndex.get("story_volume")).isEmpty() ||
-//                        data.get(columnIndex.get("event_author_rank")) == null ||
                         data.get(columnIndex.get("article_url")) == null ||
                         data.get(columnIndex.get("article_url")).isEmpty() ||
                         data.get(columnIndex.get("overall_source_rank")) == null ||
@@ -84,17 +74,12 @@ public class DataEnricher {
                 selectedData.add(data.get(columnIndex.get("story_id")));
                 selectedData.add(data.get(columnIndex.get("harvested_at")));
                 selectedData.add(data.get(columnIndex.get("entity_name")));
-//                selectedData.add(data.get(columnIndex.get("entity_ticker")));
                 selectedData.add(data.get(columnIndex.get("entity_sector")));
-//                selectedData.add(data.get(columnIndex.get("article_sentiment")));
                 selectedData.add(data.get(columnIndex.get("story_name")));
-//                selectedData.add(data.get(columnIndex.get("story_sentiment")));
                 selectedData.add(data.get(columnIndex.get("story_volume")));
-//                selectedData.add(data.get(columnIndex.get("event_author_rank")));
                 String article_url = data.get(columnIndex.get("article_url"));
                 String article_hostname = extractSourceNameFromURL(article_url);
                 selectedData.add(article_hostname);
-//                System.out.println("article_hostname = " + article_hostname);
                 selectedData.add(data.get(columnIndex.get("overall_source_rank")));
                 return selectedData;
             }).collect(Collectors.toList());
@@ -157,13 +142,9 @@ public class DataEnricher {
                     System.out.println(e.getMessage());
                 }
                 obj.put("entity_name", d.get(3));
-//                obj.put("entity_ticker", d.get(4));
                 obj.put("entity_sector", d.get(4));
-//                obj.put("article_sentiment", d.get(6));
                 obj.put("story_name", d.get(5));
-//                obj.put("story_sentiment", d.get(8));
                 obj.put("story_volume", Integer.parseInt(d.get(6)));
-//                obj.put("event_author_rank", Integer.parseInt(d.get(10)));
                 obj.put("source_name", d.get(7));
                 obj.put("overall_source_rank", Integer.parseInt(d.get(8)));
                 collection.insert(obj);
@@ -185,10 +166,10 @@ public class DataEnricher {
         Path path = Paths.get("data.csv");
         Reader reader = Files.newBufferedReader(path, Charset.forName("UTF-8"));
         DataEnricher enricher = new DataEnricher(reader);
-        List<List<String>> cleanData = enricher.readData();
+//        List<List<String>> cleanData = enricher.readData();
 //        enricher.writeData(cleanData, "cleandata.csv");
-        enricher.saveDataInDB(cleanData);
-//        enricher.getDbCollection().drop();
+//        enricher.saveDataInDB(cleanData);
+        enricher.getDbCollection().drop();
 
         System.out.println(enricher.getDbCollection().count());
 
