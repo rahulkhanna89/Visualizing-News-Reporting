@@ -4,9 +4,7 @@ import com.mongodb.*;
 import com.newsvisualizer.visualization.beans.AccernData;
 
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by rahulkhanna on 08/12/16.
@@ -31,26 +29,33 @@ public class QueryOperations {
 
         BasicDBObject sourceFetchQuery = new BasicDBObject();
         sourceFetchQuery.put("story_volume", new BasicDBObject("$gte", threshold));
+        DBCursor storyIdCursor = collection.find(sourceFetchQuery);
 
-
-        List<String> story_id = collection.distinct("story_id", sourceFetchQuery);
+        storyIdCursor.sort(new BasicDBObject("story_volume", -1));
+        Set<String> storyIds = new HashSet<>(50);
+        int count = 0;
+        while (storyIdCursor.hasNext() && count < 50) {
+            DBObject dbObject = storyIdCursor.next();
+            storyIds.add((String) dbObject.get("story_id"));
+            count++;
+        }
         BasicDBObject query = new BasicDBObject();
         query.put("entity_sector", sector);
-        query.put("story_id", new BasicDBObject("$in", story_id));
+        query.put("story_id", new BasicDBObject("$in", storyIds));
         query.put("overall_source_rank", new BasicDBObject("$gt", sourceRank));
         DBCursor cursor = collection.find(query);
-        cursor.sort(new BasicDBObject("story_id", 1));
+        cursor.sort(new BasicDBObject("storyIdCursor", 1));
         cursor.sort(new BasicDBObject("harvested_at", 1));
         System.out.println("cursor.hasNext() = " + cursor.hasNext());
         List<AccernData> dataToReturn = new ArrayList<>();
         while (cursor.hasNext()) {
             DBObject object = cursor.next();
-            AccernData data = new AccernData((String) object.get("article_id"), (String) object.get("story_id"),
+            AccernData data = new AccernData((String) object.get("article_id"), (String) object.get("storyIdCursor"),
                     (Date) object.get("harvested_at"), (String) object.get("entity_name"),
                     (String) object.get("entity_sector"), (String) object.get("story_name"),
                     (int) object.get("story_volume"),
                     (String) object.get("source_name"), (int) object.get("overall_source_rank"));
-            System.out.println("data.getSource_name() = " + data.getSource_name());
+//            System.out.println("data.getSource_name() = " + data.getSource_name());
             dataToReturn.add(data);
 //            System.out.println("data.toString() = " + data.toString());
         }
