@@ -49,8 +49,8 @@ public class QueryOperations {
                     (Date) object.get("harvested_at"), (String) object.get("entity_name"),
                     (String) object.get("entity_sector"), (String) object.get("story_name"),
                     (int) object.get("story_volume"),
-                    (String) object.get("story_id"), (int) object.get("overall_source_rank"));
-//            System.out.println("data.getSource_name() = " + data.getSource_name());
+                    (String) object.get("source_name"), (int) object.get("overall_source_rank"));
+            System.out.println("data.getSource_name() = " + data.getSource_name());
             dataToReturn.add(data);
 //            System.out.println("data.toString() = " + data.toString());
         }
@@ -59,7 +59,7 @@ public class QueryOperations {
 
     public static void main(String[] args) {
         QueryOperations ops = new QueryOperations();
-        List<AccernData> storiesByGivenSector = ops.getStoriesByGivenSector("Technology", 300, 6);
+        List<AccernData> storiesByGivenSector = ops.getStoriesByGivenSector("Technology", 1300, 6);
         System.out.println("storiesByGivenSector = " + storiesByGivenSector.size());
     }
 
