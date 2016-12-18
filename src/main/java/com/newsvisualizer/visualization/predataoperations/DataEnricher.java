@@ -182,7 +182,7 @@ public class DataEnricher {
     }
 
     public static void main(String[] args) throws IOException {
-        Path path = Paths.get("data2.csv");
+        Path path = Paths.get("data.csv");
         Reader reader = Files.newBufferedReader(path, Charset.forName("UTF-8"));
         DataEnricher enricher = new DataEnricher(reader);
         List<List<String>> cleanData = enricher.readData();

@@ -48,9 +48,9 @@ public class QueryOperations {
                     (String) object.get("entity_sector"), (String) object.get("article_sentiment"), (String) object.get("story_name"),
                     (String) object.get("story_sentiment"), (int) object.get("story_volume"), (int) object.get("event_author_rank"),
                     (String) object.get("source_name"), (int)object.get("overall_source_rank"));
-            System.out.println("data.getSource_name() = " + data.getSource_name());
+//            System.out.println("data.getSource_name() = " + data.getSource_name());
             dataToReturn.add(data);
-            System.out.println("data.toString() = " + data.toString());
+//            System.out.println("data.toString() = " + data.toString());
         }
         return dataToReturn;
     }

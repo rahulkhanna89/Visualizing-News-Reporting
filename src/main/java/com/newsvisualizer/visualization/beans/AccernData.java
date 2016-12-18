@@ -20,8 +20,9 @@ public class AccernData implements Comparable<AccernData> {
     private final int event_author_rank;
     private final String source_name;
     private String shapeAssigned = "Triangle";
-
     private final int overall_source_rank;
+    private int sourceScore = 1;
+    private int sourceRank = 0;
 
     public AccernData(String article_id, String story_id, Date harvested_at, String entity_name, String entity_ticker, String entity_sector, String article_sentiment, String story_name, String story_sentiment, int story_volume, int event_author_rank, String source_name, int overall_source_rank) {
         this.article_id = article_id;
@@ -118,11 +119,27 @@ public class AccernData implements Comparable<AccernData> {
         return overall_source_rank;
     }
 
+    public int getSourceScore() {
+        return sourceScore;
+    }
+
+    public void setSourceScore(int sourceScore) {
+        this.sourceScore = sourceScore;
+    }
+
+    public int getSourceRank() {
+        return sourceRank;
+    }
+
+    public void setSourceRank(int sourceRank) {
+        this.sourceRank = sourceRank;
+    }
+
     @Override
     public int compareTo(AccernData o) {
         if (o == null || o.getHarvested_at() == null || this.getHarvested_at() == null) {
             return 0;
         }
-        return o.getHarvested_at().compareTo(this.getHarvested_at());
+        return this.getHarvested_at().compareTo(o.getHarvested_at());
     }
 }
