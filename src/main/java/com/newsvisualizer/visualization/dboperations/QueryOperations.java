@@ -32,19 +32,21 @@ public class QueryOperations {
         DBCursor storyIdCursor = collection.find(sourceFetchQuery);
 
         storyIdCursor.sort(new BasicDBObject("story_volume", -1));
+        System.out.println("storyIdCursor.size() = " + storyIdCursor.size());
         Set<String> storyIds = new HashSet<>(50);
-        int count = 0;
-        while (storyIdCursor.hasNext() && count < 50) {
+        while (storyIdCursor.hasNext()) {
+            if (storyIds.size() > 50) {
+                break;
+            }
             DBObject dbObject = storyIdCursor.next();
             storyIds.add((String) dbObject.get("story_id"));
-            count++;
         }
+        System.out.println("storyIds.size() = " + storyIds.size());
         BasicDBObject query = new BasicDBObject();
         query.put("entity_sector", sector);
         query.put("story_id", new BasicDBObject("$in", storyIds));
         query.put("overall_source_rank", new BasicDBObject("$gt", sourceRank));
         DBCursor cursor = collection.find(query);
-        cursor.sort(new BasicDBObject("story_id", 1));
         cursor.sort(new BasicDBObject("harvested_at", 1));
         System.out.println("cursor.hasNext() = " + cursor.hasNext());
         List<AccernData> dataToReturn = new ArrayList<>();
@@ -64,7 +66,7 @@ public class QueryOperations {
 
     public static void main(String[] args) {
         QueryOperations ops = new QueryOperations();
-        List<AccernData> storiesByGivenSector = ops.getStoriesByGivenSector("Technology", 1300, 6);
+        List<AccernData> storiesByGivenSector = ops.getStoriesByGivenSector("Technology", 500, 6);
         System.out.println("storiesByGivenSector = " + storiesByGivenSector.size());
     }
 
