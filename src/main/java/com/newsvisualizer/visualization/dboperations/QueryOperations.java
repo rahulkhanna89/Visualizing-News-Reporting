@@ -44,13 +44,13 @@ public class QueryOperations {
         query.put("story_id", new BasicDBObject("$in", storyIds));
         query.put("overall_source_rank", new BasicDBObject("$gt", sourceRank));
         DBCursor cursor = collection.find(query);
-        cursor.sort(new BasicDBObject("storyIdCursor", 1));
+        cursor.sort(new BasicDBObject("story_id", 1));
         cursor.sort(new BasicDBObject("harvested_at", 1));
         System.out.println("cursor.hasNext() = " + cursor.hasNext());
         List<AccernData> dataToReturn = new ArrayList<>();
         while (cursor.hasNext()) {
             DBObject object = cursor.next();
-            AccernData data = new AccernData((String) object.get("article_id"), (String) object.get("storyIdCursor"),
+            AccernData data = new AccernData((String) object.get("article_id"), (String) object.get("story_id"),
                     (Date) object.get("harvested_at"), (String) object.get("entity_name"),
                     (String) object.get("entity_sector"), (String) object.get("story_name"),
                     (int) object.get("story_volume"),
