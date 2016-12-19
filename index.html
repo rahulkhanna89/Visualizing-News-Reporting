@@ -1,19 +1,19 @@
 <html>
 <head>
 
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
-<!-- Optional theme -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
-<!-- Latest compiled and minified JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
-<script
-  src="https://code.jquery.com/jquery-3.1.1.min.js"
-  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-  crossorigin="anonymous"></script>
+    <script
+            src="https://code.jquery.com/jquery-3.1.1.min.js"
+            integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+            crossorigin="anonymous"></script>
 
     <title>News Visualizer</title>
     <style>
@@ -58,12 +58,12 @@
     }
   .options{
   border: 3px solid #dbd0d0;
-  border-radius: 10px; 
+  border-radius: 10px;
   padding: 10px;
   margin: 0;
   margin-left: 20px;
   margin-top: 15px;
-  } 
+  }
   #topic{
     margin-right: 20px;
   }
@@ -98,24 +98,31 @@
     right: 60px;
     bottom: 10px;
   }
-  #articleStart{
+    #articleOne{
     position: absolute;
-    right: 250px;
-    bottom: 3px;
+    right: 240px;
+    bottom: 1px;
     font-size: 10px;
     font-family: "Times New Roman", Times, serif;
   }
-  #articleEnd{
+  #articleTwo{
+    position: absolute;
+    right: 190px;
+    bottom: 1px;
+    font-size: 10px;
+    font-family: "Times New Roman", Times, serif;
+  }
+  #articleThree{
+    position: absolute;
+    right: 145px;
+    bottom: 1px;
+    font-size: 10px;
+    font-family: "Times New Roman", Times, serif;
+  }
+  #articleFour{
     position: absolute;
     right: 100px;
-    bottom: 3px;
-    font-size: 10px;
-    font-family: "Times New Roman", Times, serif;
-  }
-  #articleMiddle{
-    position: absolute;
-    right: 175px;
-    bottom: 3px;
+    bottom: 1px;
     font-size: 10px;
     font-family: "Times New Roman", Times, serif;
   }
@@ -128,16 +135,16 @@
 }
 
 </style>
-    
+
 </head>
 
 <body>
 <div class ="legend">
-  <img src="legen1.png" alt="Mountain View" style="width:35px;height:45px;">
+    <img src="legen1.png" alt="Mountain View" style="width:35px;height:45px;">
 </div>
-  <div class="col-lg-12 headline">
+<div class="col-lg-12 headline">
     <div class="col-lg-4" id="title">
-            <h1><span>News Visualizer</span></h1>
+        <h1><span>News Visualizer</span></h1>
     </div>
     <div class="col-lg-6 options" id="userSelection">
         Topic :
@@ -159,30 +166,37 @@
 
         Number Of Articles:
 
-        <input type="range" id="myRange" value="10" onchange="sliderFunction()">
-        <div id="articleValue">10</div>
-        <div id="articleStart">10</div>
-        <div id="articleEnd">1000</div>
-        <div id="articleMiddle">500</div>
+        <input type="range" id="myRange" min="0" max="3" onchange="sliderFunction()">
+        <div id="articleValue">500</div>
+        <div id="articleOne">0</div>
+        <div id="articleTwo">100</div>
+        <div id="articleThree">500</div>
+        <div id="articleFour">1000</div>
         <!--<select id = "number_articles" onchange="setarticles()">
             <option value="20">20</option>
             <option value="30">30</option>
             <option value="40">40</option>
         </select>   -->
-        
+
     </div>
-  </div>
-  <div class="bodyView col-lg-12">
+</div>
+<div class="bodyView col-lg-12">
     <div class="heatmap col-lg-7"></div>
     <div class="auxilliary col-lg-5">
-      <div class="linechart"></div>
-   </div>
-  </div> 
-    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-    <script type="text/javascript">
+        <div class="linechart"></div>
+    </div>
+</div>
+<script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script type="text/javascript">
+
+        var values = [0, 100, 500, 1000];
+        $('#myRange').change(function() {
+        $("#articleValue").text(values[this.value]);
+        });
+
         var topics = document.getElementById("topic");
         var selectedText = topics.options[topics.selectedIndex].text;
-        var selectedArticles = document.getElementById("myRange").value;
+        var selectedArticles = 500;
 
         var colors = ["#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00","#a20071","#a65628","#f781bf","#999999"];
         var color_parameter = 0;
@@ -207,12 +221,22 @@
         function setarticles()
         {
           var x = document.getElementById("myRange").value;
-           if(x == 0){
-              selectedArticles = (x*1) + 10;
-              }
+          var temp = 500;
+          if(x == 0){
+            selectedArticles = 0;
+          }
+          else if (x == 1){
+            selectedArticles = 100;
+          }
+          else if (x == 2){
+            selectedArticles = 500;
+          }
+          else if (x == 3){
+            selectedArticles = 1000;
+          }
           else{
-              selectedArticles = x * 10;
-            }
+            selectedArticles = temp;
+          }
         	//selectedArticles = number_articles.options[number_articles.selectedIndex].text;
             aux_linegraph.selectAll("*").remove();
         	svg.selectAll("*").remove();
@@ -222,7 +246,7 @@
         	datacall();
         }
 
-      //Global variables  
+      //Global variables
       var itemSize = 15,
       cellSize = itemSize - 1,
       margin = {top: 120, right: 20, bottom: 20, left: 140};
@@ -246,7 +270,7 @@
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
       function datacall()
-      {  
+      {
       	console.log(selectedText,selectedArticles);
       	d3.xhr("http://localhost:8080/databysector?sector="+selectedText+"&threshold="+selectedArticles+"", function(error, result)
       	{
@@ -267,16 +291,16 @@
 
         	return newItem;
 
-      	}) 
+      	})
       	render(data);
     	});
     }
 
     function render(all_data)
-    {	
-      //Code to set x axis elements and y axis elements  
+    {
+      //Code to set x axis elements and y axis elements
       var x_elements = d3.set(all_data.map(function( item ) { return item.Source; } )).values(),
-        y_elements = d3.set(all_data.map(function( item ) { return item.Story; } )).values();  
+        y_elements = d3.set(all_data.map(function( item ) { return item.Story; } )).values();
 
  	  //Calculate score for each Source and Story (0: Not reported, 1: Reported but not fastest, 1000: Reported and fastest)
  	  var scored_rows = new Array();
@@ -287,7 +311,7 @@
       	{
       		var temp = getShape(all_data,y_elements[i],x_elements[j]);
       		var score;
-      		if(temp == null)	
+      		if(temp == null)
       			score = 0;
       		else if(temp == "Circle")
       			score = 1000;
@@ -335,7 +359,7 @@
 				sorted_xelements[j+1][0] = temp;
 			}
 		}
-	} 
+	}
     console.log(sorted_xelements);
 
 	//Set the Sorted sources as X axis elements
@@ -347,12 +371,12 @@
 			iterator++;
 	}
 
- 		  //Set X axis scale	
+ 		  //Set X axis scale
       var xScale = d3.scale.ordinal()
         .domain(newx_elements)
         .rangeBands([0, newx_elements.length * itemSize]);
 
-    //Set X axis    
+    //Set X axis
     var xAxis = d3.svg.axis()
         .scale(xScale)
         .tickFormat(function (d) {
@@ -360,12 +384,12 @@
         })
         .orient("top");
 
-    //Set Y axis Scale    
+    //Set Y axis Scale
     var yScale = d3.scale.ordinal()
         .domain(y_elements)
         .rangeBands([0, y_elements.length * itemSize]);
 
-    //Set rows of the grid    
+    //Set rows of the grid
     var rows = new Array();
       for(var i=0;i<y_elements.length;i++)
       {
@@ -380,9 +404,9 @@
                 Shape : getShape(all_data,y_elements[i],newx_elements[j])
             })
         }
-      }  
-      
-    //Set Y axis  
+      }
+
+    //Set Y axis
     var yAxis = d3.svg.axis()
         .scale(yScale)
         .tickFormat(function (d) {
@@ -390,13 +414,13 @@
         })
         .orient("left");
 
-    //Append all rows to SVG 
+    //Append all rows to SVG
     var all_rows = svg.selectAll(".rows")
         .data(rows)
         .enter()
         .append("g")
         .attr("class","row");
-    
+
     //Append all cells and columns to SVG
     cells = all_rows.selectAll('rect')
         .data(function(d) {
@@ -404,15 +428,15 @@
         .enter().append('g')
         .append('rect')
         .attr('class', 'cell')
-        .attr('width', function(d) { 
+        .attr('width', function(d) {
         		return cellSize;
         })
-        .attr('height', function(d) { 
+        .attr('height', function(d) {
         		return cellSize;
         })
-        .attr('y', function(d) { 
+        .attr('y', function(d) {
         		return d.y; })
-        .attr('x', function(d) { 
+        .attr('x', function(d) {
         		return d.x; })
         .attr('stroke','#ededed')
         .attr('fill', function(d) {
@@ -441,7 +465,7 @@
         		return 'transparent';
       });
 
-   //Append all circles to SVG     
+   //Append all circles to SVG
    var circles = all_rows.selectAll('circle')
         .data(function(d) {
             return d;
@@ -459,7 +483,7 @@
         		return 'transparent';
         });
 
-   //Append Y axis 
+   //Append Y axis
    svg.append("g")
         .attr("class", "y axis")
         .call(yAxis)
@@ -479,22 +503,22 @@
         .style("text-anchor", "start")
         .attr("dx", ".8em")
         .attr("dy", ".5em")
-        .on("click", function(d) { 
+        .on("click", function(d) {
           var index = newx_elements.indexOf(d);
           if(x_toggle[index]==0)
-          { 
+          {
             addsource(d);
             d3.select(this).style('fill',getcolor(d))
             .style('font-weight', 'bold');
-            x_toggle[index] = 1; 
+            x_toggle[index] = 1;
           }
           else
           {
             d3.select(this).style('fill','black')
             .style('font-weight', 'normal');
-            x_toggle[index] = 0; 
+            x_toggle[index] = 0;
             removesource(d);
-          }  
+          }
         })
         .attr("transform", function (d) {
             return "rotate(-65)";
@@ -513,7 +537,7 @@
             if(all_data[i].Story == story && all_data[i].Source == source)
                 return all_data[i].shape;
         }
-    } 
+    }
 
     function getStoryname(all_data,story)
     {
@@ -593,7 +617,7 @@ function addsource(parameter)
       break;
     }
   }
-  if(flag==0) 
+  if(flag==0)
     sourcesandcolors.push({
       TheSource : name,
       color : setcolor()
@@ -615,7 +639,7 @@ function removesource(parameter)
 function render2(data)
 {
   var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct","Nov","Dec"];
-  
+
   var ranks = ["8", "7", "6", "5", "4", "3", "2", "1", "0"];
   var x = d3.scale.ordinal()
       .domain(months)
@@ -654,25 +678,25 @@ function render2(data)
 
     if(sourceRank.length==0)
       aux_linegraph.selectAll("*").remove();
-    else  
+    else
       var lines = plotLinegraph(data,sourceRank);
  }
 
  function plotLinegraph(data,sourceRank)
  {
-  var counter = 0;  
+  var counter = 0;
     var line = d3.svg.line()
       // assign the X function to plot our line as we wish
       .x(function(d) {
           return d.xvalue + counter;
       })
-      .y(function(d) { 
+      .y(function(d) {
         if(d.xvalue!=null && d.yvalue!=null)
           return d.yvalue;
         else
           return 400;
       });
-  for(var i=0;i<sourceRank.length;i++)  
+  for(var i=0;i<sourceRank.length;i++)
   {
     var j;
     if(i%3==0)
@@ -681,7 +705,7 @@ function render2(data)
       j=1;
     else if(i%3==2)
       j=2;
-    
+
     var tobe;
     for(var k=0;k<sourcesandcolors.length;k++)
     {
@@ -694,7 +718,7 @@ function render2(data)
     .attr("stroke",tobe);
     counter = counter + 0.5;
   }
- }  
+ }
     </script>
 </body>
 
