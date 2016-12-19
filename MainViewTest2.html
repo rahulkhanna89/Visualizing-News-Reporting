@@ -9,6 +9,12 @@
 
 <!-- Latest compiled and minified JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+<script
+  src="https://code.jquery.com/jquery-3.1.1.min.js"
+  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+  crossorigin="anonymous"></script>
+
     <title>News Visualizer</title>
     <style>
         .axis path,
@@ -29,21 +35,16 @@
   }
   .headline
   {
-      font-family: "Arial", Times, serif;
+      font-family: "Impact", Times, serif;
       background-color: #FAFAFA;
-      border-bottom: 8px solid #B71C1C;
+      border-bottom: 8px solid #013A3F;
       box-shadow: 0px 5px 10px #888888;
       padding-bottom: 0;
       padding-left: 0;
       margin-top: 0;
   }
-  .options
-  {
-      margin: 20px;
-  }
   #title{
     padding-top: 0;
-    background-color: #e0dad9;
     padding-bottom: 5px;
     padding-left: 30px;
   }
@@ -51,25 +52,78 @@
     {
       margin-top: 10;
     }
+    h1 span{
+       font-weight: 900;
+       font-size: 45px;
+    }
   .options{
   border: 3px solid #dbd0d0;
-  border-radius: 10px;
+  border-radius: 10px; 
   padding: 10px;
   margin: 0;
   margin-left: 20px;
-  margin-top: 10px;
-  }
+  margin-top: 15px;
+  } 
   #topic{
     margin-right: 20px;
   }
+  .heatmap{
+    overflow: scroll;
+    border-right: 4px solid #013A3F;
+    border-style: ridge;
+    border-top: none;
+    border-left: none;
+  }
+  .auxilliary{
+    padding-left:0;
+  }
+  .legend{
+    position: absolute;
+    top: 120px;
+    left: 30px;
+    overflow: hidden;
+    height: 50px;
+    width: 120px;
+    border: 2px solid #414144;
+    border-radius: 10px;
+  }
+  #myRange{
+    position: absolute;
+    width: 150px;
+    right: 100px;
+    bottom: 13px;
+  }
+  #articleValue{
+    position: absolute;
+    right: 60px;
+    bottom: 10px;
+  }
+  #articleStart{
+    position: absolute;
+    right: 250px;
+    bottom: 3px;
+    font-size: 10px;
+    font-family: "Times New Roman", Times, serif;
+  }
+  #articleEnd{
+    position: absolute;
+    right: 90px;
+    bottom: 3px;
+    font-size: 10px;
+    font-family: "Times New Roman", Times, serif;
+  }
+
 </style>
     
 </head>
 
 <body>
+<div class ="legend">
+  <img src="legen1.png" alt="Mountain View" style="width:35px;height:45px;">
+</div>
   <div class="col-lg-12 headline">
     <div class="col-lg-4" id="title">
-            <h1>News Visualizer</h1>
+            <h1><span>News Visualizer</span></h1>
     </div>
     <div class="col-lg-6 options" id="userSelection">
         Topic :
@@ -80,21 +134,31 @@
             <option value="Finance">Finance</option>
 
         </select>
-        Number of Articles :
-        <select id = "number_articles" onchange="setarticles()">
+
+        Number Of Articles Per Story:
+
+        <input type="range" id="myRange" value="10" onclick="sliderFunction()">
+        <div id="articleValue">10</div>
+        <div id="articleStart">10</div>
+        <div id="articleEnd">1000</div>
+        <!--<select id = "number_articles" onchange="setarticles()">
             <option value="20">20</option>
             <option value="30">30</option>
             <option value="40">40</option>
-        </select>
+        </select>   -->
         
     </div>
   </div>
-    <div class="heatmap"></div>
+  <div class="bodyView col-lg-12">
+    <div class="heatmap col-lg-7"></div>
+    <div class="auxilliary col-lg-5"><iframe src="noCopy.html" height="700" width="550" frameBorder="0"></iframe></div>
+   </div> 
     <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <script type="text/javascript">
         var topics = document.getElementById("topic");
         var selectedText = topics.options[topics.selectedIndex].text;
-        var selectedArticles = number_articles.options[number_articles.selectedIndex].text;
+        var selectedArticles = document.getElementById("myRange").value;
+        //var selectedArticles = number_articles.options[number_articles.selectedIndex].text;
         datacall();
 
         function settopic()
@@ -102,11 +166,13 @@
             selectedText = topics.options[topics.selectedIndex].text;
             svg.selectAll("*").remove();
             datacall();
+            //$("#number_articles").trigger("click");
         }
 
         function setarticles()
         {
-        	selectedArticles = number_articles.options[number_articles.selectedIndex].text;
+          selectedArticles = document.getElementById("myRange").value;
+        	//selectedArticles = number_articles.options[number_articles.selectedIndex].text;
         	svg.selectAll("*").remove();
         	datacall();
         }
@@ -116,8 +182,8 @@
       cellSize = itemSize - 1,
       margin = {top: 120, right: 20, bottom: 20, left: 140};
       
-      var width = 5750 - margin.right - margin.left,
-      height = 5300 - margin.top - margin.bottom;
+      var width = 750 - margin.right - margin.left,
+      height = 900 - margin.top - margin.bottom;
 
       var min = [];
       var max = [];
@@ -448,6 +514,11 @@
     		if(all_data[i].Story == story)
     			return all_data[i].Storyname;
     	}
+    }
+    function sliderFunction(){
+      var x = document.getElementById("myRange").value;
+      document.getElementById("articleValue").innerHTML = x * 10;
+      setarticles();
     }
     </script>
 </body>
