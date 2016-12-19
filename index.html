@@ -291,7 +291,9 @@
       			score = 0;
       		else if(temp == "Circle")
       			score = 1000;
-      		else
+            else if(temp == "Triangle")
+                score = 500;
+            else
       			score = 1;
       		scored_rows[i].push({
                 x : x_elements[j],
@@ -334,6 +336,7 @@
 			}
 		}
 	} 
+    console.log(sorted_xelements);
 
 	//Set the Sorted sources as X axis elements
 	var newx_elements = [];
@@ -413,11 +416,13 @@
         		return d.x; })
         .attr('stroke','#ededed')
         .attr('fill', function(d) {
-          /*if(d.Shape == "Circle")
-            return '#08519c';
+          if(d.Shape == "Circle")
+            return '#2c7fb8';
           else if(d.Shape == "Triangle")
-            return '#c6dbef';
-        	else*/	
+            return '#7fcdbb';
+          else if(d.Shape == "Diamond")
+            return '#edf8b1';
+        	else
             return 'transparent';
          });
 
@@ -430,9 +435,9 @@
       .attr("transform", function(d) { return "translate(" + (d.x + cellSize/2) + "," + (d.y + cellSize/2) + ")"; })
       .attr('opacity',0.8)
       .attr('fill', function(d) {
-      	if(d.Shape == "Triangle")
-        		return '#54278f';
-        	else
+      	//if(d.Shape == "Triangle")
+        //		return '#54278f';
+        //	else
         		return 'transparent';
       });
 
@@ -448,9 +453,9 @@
         .attr('r', (cellSize/2 - 1))
         .attr('opacity',0.8)
         .attr('fill', function(d) {
-        	if(d.Shape == "Circle")
-        		return '#54278f';
-        	else
+        	//if(d.Shape == "Circle")
+        	//	return '#54278f';
+        	//else
         		return 'transparent';
         });
 

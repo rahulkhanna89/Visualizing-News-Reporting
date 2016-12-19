@@ -25,10 +25,10 @@ public class RankProcessor {
         Map<String, Map<Integer, List<AccernData>>> articlesByRankForAStory = new HashMap<>();
         List<AccernData> processedData = new ArrayList<AccernData>();
         List<String> sourceNameWhoWereAtLeastFastestOnce = new ArrayList<>();
+        int i = 0;
         articleByStoriesId.forEach((s, datas) -> {
             Collections.sort(datas);
             AccernData fastestArticle = datas.get(0);
-            fastestArticle.setShapeAssigned("Circle");
             sourceNameWhoWereAtLeastFastestOnce.add(fastestArticle.getSource_name());
             fastestArticle.setSourceScore(100);
 
@@ -36,6 +36,18 @@ public class RankProcessor {
         Map<String, List<AccernData>> filteredStories = new HashMap<>();
         articleByStoriesId.forEach((s, datas) -> {
             List<AccernData> collect = datas.stream().filter(article -> sourceNameWhoWereAtLeastFastestOnce.contains(article.getSource_name())).collect(Collectors.toList());
+            Collections.sort(collect);
+            int k = 0;
+            for (AccernData article : collect) {
+                if (k == 0) {
+                    article.setShapeAssigned("Circle");
+                } else if (k >= 1 && k < 6) {
+                    article.setShapeAssigned("Triangle");
+                }else{
+                    article.setShapeAssigned("Diamond");
+                }
+                k++;
+            }
             filteredStories.put(s, collect);
             processedData.addAll(collect);
         });
@@ -120,43 +132,6 @@ public class RankProcessor {
         }
     }
 
-
-//    private static Map<String, List<Double>> sourceRankByMonth(List<AccernData> articlesByRankForAStory) {
-//        Map<String, List<Double>> sourceRanksByMonth = new HashMap<>();
-//        Map<String, Map<Integer,List<AccernData>>> articlesByMonthAndSource = new HashMap<>();
-//        for (int i = 0; i < 12; i++) {
-//            int monthNeeded = i;
-//            List<AccernData> articlesByMonth = articlesByRankForAStory.stream().filter(article -> {
-//                Calendar cal = Calendar.getInstance();
-//                cal.setTime(article.getHarvested_at());
-//                return cal.get(Calendar.MONTH) == monthNeeded;
-//            }).collect(Collectors.toList());
-//            Map<Integer, List<AccernData>> articlesForAMonth = new HashMap<>();
-//            articlesByMonth.stream().forEach(article -> {
-//                if (articlesByMonthAndSource.containsKey(article.getSource_name())) {
-//                    articlesByMonthAndSource.get(article.getSource_name()).add(article);
-//                } else {
-//                    List<AccernData> articlesBySource = new ArrayList<>();
-//                    articlesBySource.add(article);
-//
-//                }
-//                articlesForAMonth.put(monthNeeded,a)
-//                articlesByMonthAndSource.put(article.getSource_name(), articlesBySource);
-//            });
-//        }
-//
-//        for (Map.Entry<String, List<AccernData>> data : articlesByMonthAndSource.entrySet()) {
-//            List<Double> sourceRankForAMonth = new ArrayList<>(12);
-//            int sourceRank = 0;
-//            for (AccernData article : data.getValue()) {
-//                sourceRank += article.getSourceRank();
-//            }
-//            sourceRankForAMonth.add((double) (sourceRank / data.getValue().size()));
-//            sourceRanksByMonth.put(data.getKey(),sourceRankForAMonth);
-//        }
-//
-//        return sourceRanksByMonth;
-//    }
 
     private static Map<Integer, Map<String, Date>> generateTimeCutOffPerRank(long timeRangeForThisStory, long startTime) {
         Map<Integer, Map<String, Date>> timeRangePerRank = new HashMap<>(8);

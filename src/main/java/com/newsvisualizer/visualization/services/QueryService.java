@@ -78,6 +78,7 @@ public class QueryService {
         return processedData;
     }
 
+    @CrossOrigin(origins = "http://localhost:8000")
     @RequestMapping(value = "/getSourceRankData")
     public Map<String, Map<Integer, Double>> getSourceRankData() {
         return getFetchedData();
