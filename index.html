@@ -107,7 +107,14 @@
   }
   #articleEnd{
     position: absolute;
-    right: 90px;
+    right: 100px;
+    bottom: 3px;
+    font-size: 10px;
+    font-family: "Times New Roman", Times, serif;
+  }
+  #articleMiddle{
+    position: absolute;
+    right: 175px;
     bottom: 3px;
     font-size: 10px;
     font-family: "Times New Roman", Times, serif;
@@ -139,6 +146,14 @@
             <option value="Energy">Energy</option>
             <option value="Public Utilities">Public Utilities</option>
             <option value="Finance">Finance</option>
+            <option value="Capital Goods">Capital Goods</option>
+            <option value="Transportation">Transportation</option>
+            <option value="Consumer Services">Consumer Services</option>
+            <option value="Basic Industries">Basic Industries</option>
+            <option value="Health Care">Health Care</option>
+            <option value="Consumer Non-Durables">Consumer Non-Durables</option>
+            <option value="Consumer Durables">Consumer Durables</option>
+            <option value="Miscellaneous">Miscellaneous</option>
 
         </select>
 
@@ -148,6 +163,7 @@
         <div id="articleValue">10</div>
         <div id="articleStart">10</div>
         <div id="articleEnd">1000</div>
+        <div id="articleMiddle">500</div>
         <!--<select id = "number_articles" onchange="setarticles()">
             <option value="20">20</option>
             <option value="30">30</option>
@@ -181,7 +197,13 @@
 
         function setarticles()
         {
-          selectedArticles = document.getElementById("myRange").value;
+          var x = document.getElementById("myRange").value;
+           if(x == 0){
+              selectedArticles = (x*1) + 10;
+              }
+          else{
+              selectedArticles = x * 10;
+            }
         	//selectedArticles = number_articles.options[number_articles.selectedIndex].text;
         	svg.selectAll("*").remove();
         	datacall();
@@ -490,7 +512,12 @@
     }
     function sliderFunction(){
       var x = document.getElementById("myRange").value;
-      document.getElementById("articleValue").innerHTML = x * 10;
+      if(x == 0){
+        document.getElementById("articleValue").innerHTML = (x * 1) + 10;
+      }
+      else{
+        document.getElementById("articleValue").innerHTML = x * 10;
+    }
       setarticles();
     }
 
