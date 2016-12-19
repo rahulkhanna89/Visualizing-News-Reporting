@@ -1,165 +1,686 @@
 <html>
 <head>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+<script
+  src="https://code.jquery.com/jquery-3.1.1.min.js"
+  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+  crossorigin="anonymous"></script>
+
     <title>News Visualizer</title>
     <style>
-      rect.bordered {
-        stroke: #E6E6E6;
-        stroke-width:2px;   
-      }
+        .axis path,
+  .axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+  }
 
-      text.mono {
-        font-size: 9pt;
-        font-family: Consolas, courier;
-        fill: #aaa;
-      }
+  .axis text {
+      font-family: sans-serif;
+      font-size: 11px;
+  }
+  body
+  {
+  	   background-color: #FFFFFF;
 
-      text.axis-workweek {
-        fill: #000;
-      }
+  }
+  .headline
+  {
+      font-family: "Impact", Times, serif;
+      background-color: #FAFAFA;
+      border-bottom: 8px solid #013A3F;
+      box-shadow: 0px 5px 10px #888888;
+      padding-bottom: 0;
+      padding-left: 0;
+      margin-top: 0;
+  }
+  #title{
+    padding-top: 0;
+    padding-bottom: 5px;
+    padding-left: 30px;
+  }
+  h1
+    {
+      margin-top: 10;
+    }
+    h1 span{
+       font-weight: 900;
+       font-size: 45px;
+    }
+  .options{
+  border: 3px solid #dbd0d0;
+  border-radius: 10px; 
+  padding: 10px;
+  margin: 0;
+  margin-left: 20px;
+  margin-top: 15px;
+  } 
+  #topic{
+    margin-right: 20px;
+  }
+  .heatmap{
+    overflow: scroll;
+    border-right: 4px solid #013A3F;
+    border-style: ridge;
+    border-top: none;
+    border-left: none;
+  }
+  .auxilliary{
+    padding-left:0;
+  }
+  .legend{
+    position: absolute;
+    top: 120px;
+    left: 30px;
+    overflow: hidden;
+    height: 50px;
+    width: 120px;
+    border: 2px solid #414144;
+    border-radius: 10px;
+  }
+  #myRange{
+    position: absolute;
+    width: 150px;
+    right: 100px;
+    bottom: 13px;
+  }
+  #articleValue{
+    position: absolute;
+    right: 60px;
+    bottom: 10px;
+  }
+  #articleStart{
+    position: absolute;
+    right: 250px;
+    bottom: 3px;
+    font-size: 10px;
+    font-family: "Times New Roman", Times, serif;
+  }
+  #articleEnd{
+    position: absolute;
+    right: 100px;
+    bottom: 3px;
+    font-size: 10px;
+    font-family: "Times New Roman", Times, serif;
+  }
+  #articleMiddle{
+    position: absolute;
+    right: 175px;
+    bottom: 3px;
+    font-size: 10px;
+    font-family: "Times New Roman", Times, serif;
+  }
+  .x-axis path {
+  display: none;
+}
+.line {
+  fill: none;
+  stroke-width: 1.5px;
+}
 
-      text.axis-worktime {
-        fill: #000;
-      }
-    </style>
+</style>
     
 </head>
 
 <body>
-    <div id="title">
-            <h1>News Visualizer</h1>
+<div class ="legend">
+  <img src="legen1.png" alt="Mountain View" style="width:35px;height:45px;">
+</div>
+  <div class="col-lg-12 headline">
+    <div class="col-lg-4" id="title">
+            <h1><span>News Visualizer</span></h1>
     </div>
-    <div id="userSelection">
-        Topic
-        <select id = "topic">
+    <div class="col-lg-6 options" id="userSelection">
+        Topic :
+        <select id = "topic" onchange="settopic()">
             <option value="Technology">Technology</option>
-            <option value="Sports">Sports</option>
-            <option value="Politics">Politics</option>
+            <option value="Energy">Energy</option>
+            <option value="Public Utilities">Public Utilities</option>
+            <option value="Finance">Finance</option>
+            <option value="Capital Goods">Capital Goods</option>
+            <option value="Transportation">Transportation</option>
+            <option value="Consumer Services">Consumer Services</option>
+            <option value="Basic Industries">Basic Industries</option>
+            <option value="Health Care">Health Care</option>
+            <option value="Consumer Non-Durables">Consumer Non-Durables</option>
+            <option value="Consumer Durables">Consumer Durables</option>
+            <option value="Miscellaneous">Miscellaneous</option>
+
         </select>
-        
-        Number of Articles :
-        <select>
-            <option value="10">10</option>
+
+        Number Of Articles:
+
+        <input type="range" id="myRange" value="10" onchange="sliderFunction()">
+        <div id="articleValue">10</div>
+        <div id="articleStart">10</div>
+        <div id="articleEnd">1000</div>
+        <div id="articleMiddle">500</div>
+        <!--<select id = "number_articles" onchange="setarticles()">
             <option value="20">20</option>
             <option value="30">30</option>
-        </select>
+            <option value="40">40</option>
+        </select>   -->
         
     </div>
-    
-    
-    <div id="chart"></div>
+  </div>
+  <div class="bodyView col-lg-12">
+    <div class="heatmap col-lg-7"></div>
+    <div class="auxilliary col-lg-5">
+      <div class="linechart"></div>
+   </div>
+  </div> 
     <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <script type="text/javascript">
-      var margin = { top: 50, right: 0, bottom:100, left: 130 },
-          width = 1960 - margin.left - margin.right,
-          height = 530 - margin.top - margin.bottom,
-          gridSize = Math.floor(width / 24),
-          legendElementWidth = gridSize*2,
-          buckets = 9,
-          colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"],
-          days = ["STORY 1", "STORY 2", "STORY 3", "STORY 4", "STORY 5", "STORY 6"],
-          times = ["S1","S2","S3","S4","S5","S6","S7","S8","S9","S10"];
-          datasets = ["data2.csv"];
+        var topics = document.getElementById("topic");
+        var selectedText = topics.options[topics.selectedIndex].text;
+        var selectedArticles = document.getElementById("myRange").value;
+        //var selectedArticles = number_articles.options[number_articles.selectedIndex].text;
+        datacall();
+        getauxdata();
 
-      var svg = d3.select("#chart").append("svg")
-          .attr("width", width + margin.left + margin.right)
-          .attr("height", height + margin.top + margin.bottom)
-          .append("g")
-          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-      var storyLabel = svg.selectAll(".storyLabel")
-          .data(days)
-          .enter().append("text")
-            .text(function (d) { return d; })
-            .attr("x", 0)
-            .attr("y", function (d, i) { return i * gridSize; })
-            .style("text-anchor", "end")
-            .attr("transform", "translate(-6," + gridSize / 1.5 + ")")
-            .attr("class", function (d, i) { return ((i >= 0 && i <= 6) ? "storyLabel mono axis axis-workweek" : "storyLabel mono axis"); });
-
-      var sourceLabels = svg.selectAll(".sourceLabels")
-          .data(times)
-          .enter().append("text")
-            .text(function(d) { return d; })
-            .attr("x", function(d, i) { return i * gridSize; })
-            .attr("y", 0)
-            .style("text-anchor", "middle")
-            .attr("transform", "translate(" + gridSize / 2 + ", -6)")
-            .attr("class", function(d, i) { return ((i >= 0 && i <= 16) ? "sourceLabels mono axis axis-worktime" : "sourceLabels mono axis"); });
-
-      var heatmapChart = function(data) {
-          var colorScale = d3.scale.quantile()
-              .domain([0, buckets - 1, d3.max(data, function (d) { return d.harvested_at; })])
-              .range(colors);
-
-          var cards = svg.selectAll(".hour")
-              .data(data, function(d) {return d.day+':'+d.hour;});
-
-          cards.append("title");
-
-          cards.enter().append("rect")
-              .attr("x", function(d) { return (d.hour - 1) * gridSize; })
-              .attr("y", function(d) { return (d.day - 1) * gridSize; })
-              .attr("rx", 4)
-              .attr("ry", 4)
-              .attr("class", "hour bordered")
-              .attr("width", gridSize)
-              .attr("height", gridSize)
-              .style("fill", colors[0]);
-
-          cards.transition().duration(1000)
-              .style("fill", function(d) { return colorScale(d.value); });
-
-          cards.select("title").text(function(d) { return d.value; });
-          
-          cards.exit().remove();
-
-//          var legend = svg.selectAll(".legend")
-//              .data([0].concat(colorScale.quantiles()), function(d) { return d; });
-
-//          legend.enter().append("g")
-//              .attr("class", "legend");
-//
-//          legend.append("rect")
-//            .attr("x", function(d, i) { return legendElementWidth * i; })
-//            .attr("y", height)
-//            .attr("width", legendElementWidth)
-//            .attr("height", gridSize / 2)
-//            .style("fill", function(d, i) { return colors[i]; });
-//
-//          legend.append("text")
-//            .attr("class", "mono")
-//            .text(function(d) { return "≥ " + Math.round(d); })
-//            .attr("x", function(d, i) { return legendElementWidth * i; })
-//            .attr("y", height + gridSize);
-//
-//          legend.exit().remove();
-  
-      };
-        
-        function render(data){
-                var i = 0;
-                var filteredData = data.filter(function(d){
-                    if(d.story_volume>1050){
-                        i++;
-                    }
-                    return d.story_volume > 1050;
-                })
-                heatmapChart(filteredData);
+        function settopic()
+        {
+            selectedText = topics.options[topics.selectedIndex].text;
+            svg.selectAll("*").remove();
+            datacall();
+            //$("#number_articles").trigger("click");
         }
 
+        function setarticles()
+        {
+          var x = document.getElementById("myRange").value;
+           if(x == 0){
+              selectedArticles = (x*1) + 10;
+              }
+          else{
+              selectedArticles = x * 10;
+            }
+        	//selectedArticles = number_articles.options[number_articles.selectedIndex].text;
+        	svg.selectAll("*").remove();
+        	datacall();
+        }
 
+      //Global variables  
+      var itemSize = 15,
+      cellSize = itemSize - 1,
+      margin = {top: 120, right: 20, bottom: 20, left: 140};
       
-        d3.csv("data2.csv",function(error, result){
-            render(result);
+      var colors = ["#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00","#a20071","#a65628","#f781bf","#999999"];
+      var color_parameter = 0;
+      var sourcesandcolors = new Array();
+
+      var width = 750 - margin.right - margin.left,
+      height = 900 - margin.top - margin.bottom;
+
+      var cells;
+      var min = [];
+      var max = [];
+      var stories = [];
+      var data;
+
+      var svg = d3.select('.heatmap')
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        //.attr("viewBox","0 0 2620 2160")
+        //.attr("preserveAspectRatio","xMinYMin")
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      function datacall()
+      {  
+      	console.log(selectedText,selectedArticles);
+      	//d3.xhr("http://localhost:8080/databysector?sector="+selectedText+"&threshold="+selectedArticles+"", function(error, result)
+      	//{
+       	 //response = JSON.parse(result.responseText);
+
+      d3.json("technology500.json", function(response)
+      {   
+        //console.log("JSON data: ",response);
+
+        //Code to return data structure
+        	data = response.map(function( item ) {
+        	var newItem = {};
+        	newItem.Story = item.story_id;
+        	newItem.Time = item.harvested_at;
+        	newItem.Source = item.source_name;
+        	newItem.Storyname = item.entity_name;
+        	newItem.shape = item.shapeAssigned;
+
+        	return newItem;
+
+      	}) 
+      	render(data);
+    	});
+    }
+
+    function render(all_data)
+    {	
+      //Code to set x axis elements and y axis elements  
+      var x_elements = d3.set(all_data.map(function( item ) { return item.Source; } )).values(),
+        y_elements = d3.set(all_data.map(function( item ) { return item.Story; } )).values();  
+
+ 	  //Calculate score for each Source and Story (0: Not reported, 1: Reported but not fastest, 1000: Reported and fastest)
+ 	  var scored_rows = new Array();
+      for(var i=0;i<y_elements.length;i++)
+      {
+      	scored_rows.push(new Array());
+      	for(var j=0;j<x_elements.length;j++)
+      	{
+      		var temp = getShape(all_data,y_elements[i],x_elements[j]);
+      		var score;
+      		if(temp == null)	
+      			score = 0;
+      		else if(temp == "Circle")
+      			score = 1000;
+      		else
+      			score = 1;
+      		scored_rows[i].push({
+                x : x_elements[j],
+                y : y_elements[i],
+                Score: score
+            })
+      	}
+      }
+
+      //Calculate Total score for each Source
+      var sorted_xelements = new Array();
+      var sum_totalscore=0,avg_totalscore = 0;
+      for(var i=0;i<x_elements.length;i++)
+      {
+      	sorted_xelements.push(new Array());
+      	var totalscore = 0;
+      	for(var j=0;j<y_elements.length;j++)
+      	{
+      		var temp = scored_rows[j][i].Score;
+      		totalscore = totalscore + temp;
+      	}
+      	sorted_xelements[i].push({
+      			x: x_elements[i],
+      			TotalScore: totalscore
+      		})
+      	sum_totalscore =sum_totalscore + totalscore;
+      }
+	  avg_totalscore = sum_totalscore/x_elements.length;
+
+	//Sort the Sources according to Total Score
+	for(var i=0;i<sorted_xelements.length;i++)
+	{
+		for(var j=0;j<(sorted_xelements.length - i - 1);j++)
+		{
+			if(sorted_xelements[j][0].TotalScore < sorted_xelements[j+1][0].TotalScore)
+			{
+				var temp = sorted_xelements[j][0];
+				sorted_xelements[j][0] = sorted_xelements[j+1][0];
+				sorted_xelements[j+1][0] = temp;
+			}
+		}
+	} 
+
+	//Set the Sorted sources as X axis elements
+	var newx_elements = [];
+	var iterator =0;
+	for(var i=0;i<x_elements.length;i++)
+	{
+			newx_elements[iterator] = sorted_xelements[i][0].x;
+			iterator++;
+	}
+	console.log(newx_elements);
+
+ 		  //Set X axis scale	
+      var xScale = d3.scale.ordinal()
+        .domain(newx_elements)
+        .rangeBands([0, newx_elements.length * itemSize]);
+
+    //Set X axis    
+    var xAxis = d3.svg.axis()
+        .scale(xScale)
+        .tickFormat(function (d) {
+            return d;
+        })
+        .orient("top");
+
+    //Set Y axis Scale    
+    var yScale = d3.scale.ordinal()
+        .domain(y_elements)
+        .rangeBands([0, y_elements.length * itemSize]);
+
+    //Set rows of the grid    
+    var rows = new Array();
+      for(var i=0;i<y_elements.length;i++)
+      {
+        rows.push(new Array());
+        for(var j=0;j<newx_elements.length;j++)
+        {
+            rows[i].push({
+                x : xScale(newx_elements[j]),
+                y : yScale(y_elements[i]),
+                SelectedSource : newx_elements[i],
+                Story : y_elements[i],
+                Shape : getShape(all_data,y_elements[i],newx_elements[j])
+            })
+        }
+      }  
+      
+    //Set Y axis  
+    var yAxis = d3.svg.axis()
+        .scale(yScale)
+        .tickFormat(function (d) {
+            return getStoryname(all_data,d);
+        })
+        .orient("left");
+
+    //Append all rows to SVG 
+    var all_rows = svg.selectAll(".rows")
+        .data(rows)
+        .enter()
+        .append("g")
+        .attr("class","row");
+    
+    //Append all cells and columns to SVG
+    cells = all_rows.selectAll('rect')
+        .data(function(d) {
+            return d;})
+        .enter().append('g')
+        .append('rect')
+        .attr('class', 'cell')
+        .attr('width', function(d) { 
+        		return cellSize;
+        })
+        .attr('height', function(d) { 
+        		return cellSize;
+        })
+        .attr('y', function(d) { 
+        		return d.y; })
+        .attr('x', function(d) { 
+        		return d.x; })
+        .attr('stroke','#ededed')
+        .attr('fill', function(d) {
+          /*if(d.Shape == "Circle")
+            return '#08519c';
+          else if(d.Shape == "Triangle")
+            return '#c6dbef';
+        	else*/	
+            return 'transparent';
+         });
+
+   	//Append all traingles to SVG
+   	var traingles = all_rows.selectAll(".point")
+      .data(function(d) { return d;})
+    .enter().append("path")
+      .attr("class", "point")
+      .attr("d", d3.svg.symbol().type("diamond").size(cellSize * 4))
+      .attr("transform", function(d) { return "translate(" + (d.x + cellSize/2) + "," + (d.y + cellSize/2) + ")"; })
+      .attr('opacity',0.8)
+      .attr('fill', function(d) {
+      	if(d.Shape == "Triangle")
+        		return '#54278f';
+        	else
+        		return 'transparent';
+      });
+
+   //Append all circles to SVG     
+   var circles = all_rows.selectAll('circle')
+        .data(function(d) {
+            return d;
+        })
+        .enter().append('g')
+        .append('circle')
+        .attr('cx', function(d) { return d.x + cellSize/2})
+        .attr('cy', function(d) { return d.y + cellSize/2})
+        .attr('r', (cellSize/2 - 1))
+        .attr('opacity',0.8)
+        .attr('fill', function(d) {
+        	if(d.Shape == "Circle")
+        		return '#54278f';
+        	else
+        		return 'transparent';
         });
 
+   //Append Y axis 
+   svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+        .selectAll('text')
+        .attr('font-weight', 'normal');
+
+    //Append X axis
+    var x_toggle = [];
+    for(var i=0;i<newx_elements.length;i++)
+      x_toggle[i] = 0;
+
+    svg.append("g")
+        .attr("class", "x axis")
+        .call(xAxis)
+        .selectAll('text')
+        .attr('font-weight', 'normal')
+        .style("text-anchor", "start")
+        .attr("dx", ".8em")
+        .attr("dy", ".5em")
+        .on("click", function(d) { 
+          var index = newx_elements.indexOf(d);
+          if(x_toggle[index]==0)
+          { 
+            addsource(d);
+            d3.select(this).style('fill',getcolor(d))
+            .style('font-weight', 'bold');
+            x_toggle[index] = 1; 
+          }
+          else
+          {
+            d3.select(this).style('fill','black')
+            .style('font-weight', 'normal');
+            x_toggle[index] = 0; 
+            removesource(d);
+          }  
+        })
+        .attr("transform", function (d) {
+            return "rotate(-65)";
+        });
+    }
+
+    function highlight(x_coordinate)
+    {
+
+    }
+
+    function getShape(all_data,story,source)
+    {
+        for(var i=0;i<all_data.length;i++)
+        {
+            if(all_data[i].Story == story && all_data[i].Source == source)
+                return all_data[i].shape;
+        }
+    } 
+
+    function getStoryname(all_data,story)
+    {
+    	for(var i=0;i<all_data.length;i++)
+    	{
+    		if(all_data[i].Story == story)
+    			return all_data[i].Storyname;
+    	}
+    }
+    function sliderFunction(){
+      var x = document.getElementById("myRange").value;
+      if(x == 0){
+        document.getElementById("articleValue").innerHTML = (x * 1) + 10;
+      }
+      else{
+        document.getElementById("articleValue").innerHTML = x * 10;
+    }
+      setarticles();
+    }
+
+
+    function getcolor(d)
+    {
+      var tobe;
+      for(var i=0;i<sourcesandcolors.length;i++)
+      {
+        if(sourcesandcolors[i].TheSource == d)
+        {
+          tobe = sourcesandcolors[i].color;
+          break;
+        }
+      }
+      return tobe;
+    }
+
+
+    //Code to display Auxillary view
+    var aux_all_data;
+var aux_linegraph = d3.select('.linechart')
+  .append('svg')
+  .attr("width",500)
+  .attr("height",600)
+  .append("g");
+
+function getauxdata()
+{  
+  d3.json("FinalDataRanked.json", function(error, json)
+  {
+    aux_all_data = json;
+  });
+}
+
+var source = [];
+
+function setcolor()
+{
+  var tobe = colors[color_parameter];
+  color_parameter++;
+  if(color_parameter==8)
+    color_parameter=0;
+  return tobe;
+}
+
+function addsource(parameter)
+{
+  aux_flag_contains = 0;
+  //var name = document.getElementById('Source').value;
+  var name = parameter;
+  if(source.indexOf(name) == -1)
+    source.push(name);
+  var flag = 0;
+  for(var i=0;i<sourcesandcolors.length;i++)
+  {
+    if(sourcesandcolors[i].TheSource == name)
+    {
+      flag = 1;
+      break;
+    }
+  }
+  if(flag==0) 
+    sourcesandcolors.push({
+      TheSource : name,
+      color : setcolor()
+    })
+  render2(aux_all_data);
+}
+
+function removesource(parameter)
+{
+  //var name = document.getElementById('Source').value;
+  var name = parameter;
+  var index = source.indexOf(name);
+  if(index > -1)
+    source.splice(index, 1);
+  aux_linegraph.selectAll("*").remove();
+  render2(aux_all_data);
+}
+
+function render2(data)
+{
+  var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct","Nov","Dec"];
+  
+  var ranks = ["8", "7", "6", "5", "4", "3", "2", "1", "0"];
+  var x = d3.scale.ordinal()
+      .domain(months)
+      .rangePoints([20, 450]);
+  var y = d3.scale.ordinal()
+      .domain(ranks)
+      .rangePoints([20, 400]);
+  var xAxis = d3.svg.axis()
+  .scale(x).orient("bottom").ticks(12);
+  var yAxis = d3.svg.axis()
+  .scale(y).orient("left").ticks(8);
+
+  var sourceRank = new Array();
+  for(var j=0;j<source.length;j++)
+  {
+    sourceRank.push(new Array());
+    for(var i=0;i<12;i++)
+    {
+      sourceRank[j].push({
+        sourcename : source[j],
+        xvalue : x(months[i]),
+        yvalue : y(data[source[j]][i])
+      })
+    }
+  }
+  aux_linegraph.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0,400)")
+      .call(xAxis);
+  aux_linegraph.append("g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(20,0)")
+      .call(yAxis);
+
+    if(sourceRank.length==0)
+      aux_linegraph.selectAll("*").remove();
+    else  
+      var lines = plotLinegraph(data,sourceRank);
+ }
+
+ function plotLinegraph(data,sourceRank)
+ {
+  var counter = 0;  
+    var line = d3.svg.line()
+      // assign the X function to plot our line as we wish
+      .x(function(d) {
+          return d.xvalue + counter;
+      })
+      .y(function(d) { 
+        if(d.xvalue!=null && d.yvalue!=null)
+          return d.yvalue;
+        else
+          return 400;
+      });
+  for(var i=0;i<sourceRank.length;i++)  
+  {
+    var j;
+    if(i%3==0)
+      j=0;
+    else if(i%3==1)
+      j=1;
+    else if(i%3==2)
+      j=2;
+    
+    var tobe;
+    for(var k=0;k<sourcesandcolors.length;k++)
+    {
+      if(sourcesandcolors[k].TheSource == sourceRank[i][0].sourcename)
+        tobe = sourcesandcolors[k].color;
+    }
+    aux_linegraph.append("path")
+    .attr("class","line")
+    .attr("d",line(sourceRank[i]))
+    .attr("stroke",tobe);
+    counter = counter + 0.5;
+  }
+ }  
     </script>
-
-
-
-
 </body>
-
-
 
 </html>
