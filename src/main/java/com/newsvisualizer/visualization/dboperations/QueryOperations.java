@@ -13,11 +13,16 @@ public class QueryOperations {
 
     private final DBCollection collection;
 
-    public QueryOperations() throws UnknownHostException {
+    public QueryOperations(){
         Mongo client = null;
-        client = new MongoClient("127.0.0.1");
+        try {
+            client = new MongoClient("127.0.0.1");
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
         DB db = client.getDB("iv");
         this.collection = db.getCollection("data");
+        this.collection.createIndex(new BasicDBObject("story_volume", -1));
         this.collection.createIndex(new BasicDBObject("harvested_at", 1));
         this.collection.createIndex(new BasicDBObject("story_id", 1));
     }
@@ -26,6 +31,7 @@ public class QueryOperations {
     public List<AccernData> getStoriesByGivenSector(String sector, int threshold, int sourceRank) {
 
         BasicDBObject sourceFetchQuery = new BasicDBObject();
+        sourceFetchQuery.put("entity_sector", sector);
         sourceFetchQuery.put("story_volume", new BasicDBObject("$gte", threshold));
         DBCursor storyIdCursor = collection.find(sourceFetchQuery);
         storyIdCursor.sort(new BasicDBObject("story_volume", -1));
@@ -64,9 +70,9 @@ public class QueryOperations {
         return dataToReturn;
     }
 
-    public static void main(String[] args) throws UnknownHostException {
+    public static void main(String[] args) {
         QueryOperations ops = new QueryOperations();
-        List<AccernData> storiesByGivenSector = ops.getStoriesByGivenSector("Technology", 500, 6);
+        List<AccernData> storiesByGivenSector = ops.getStoriesByGivenSector("Technology", 1, 6);
         System.out.println("storiesByGivenSector = " + storiesByGivenSector.size());
     }
 
