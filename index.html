@@ -183,14 +183,23 @@
         var topics = document.getElementById("topic");
         var selectedText = topics.options[topics.selectedIndex].text;
         var selectedArticles = document.getElementById("myRange").value;
+
+        var colors = ["#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00","#a20071","#a65628","#f781bf","#999999"];
+        var color_parameter = 0;
+        var sourcesandcolors = [];
+        var source = [];
+
         //var selectedArticles = number_articles.options[number_articles.selectedIndex].text;
         datacall();
-        getauxdata();
 
         function settopic()
         {
             selectedText = topics.options[topics.selectedIndex].text;
+            aux_linegraph.selectAll("*").remove();
             svg.selectAll("*").remove();
+            sourcesandcolors = [];
+            source = [];
+            color_parameter = 0;
             datacall();
             //$("#number_articles").trigger("click");
         }
@@ -205,7 +214,11 @@
               selectedArticles = x * 10;
             }
         	//selectedArticles = number_articles.options[number_articles.selectedIndex].text;
+            aux_linegraph.selectAll("*").remove();
         	svg.selectAll("*").remove();
+            sourcesandcolors = [];
+            source = [];
+            color_parameter = 0;
         	datacall();
         }
 
@@ -213,10 +226,6 @@
       var itemSize = 15,
       cellSize = itemSize - 1,
       margin = {top: 120, right: 20, bottom: 20, left: 140};
-      
-      var colors = ["#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00","#a20071","#a65628","#f781bf","#999999"];
-      var color_parameter = 0;
-      var sourcesandcolors = new Array();
 
       var width = 750 - margin.right - margin.left,
       height = 900 - margin.top - margin.bottom;
@@ -239,12 +248,12 @@
       function datacall()
       {  
       	console.log(selectedText,selectedArticles);
-      	//d3.xhr("http://localhost:8080/databysector?sector="+selectedText+"&threshold="+selectedArticles+"", function(error, result)
-      	//{
-       	 //response = JSON.parse(result.responseText);
-
-      d3.json("technology500.json", function(response)
-      {   
+      	d3.xhr("http://localhost:8080/databysector?sector="+selectedText+"&threshold="+selectedArticles+"", function(error, result)
+      	{
+       	 response = JSON.parse(result.responseText);
+            getauxdata();
+//      d3.json("technology500.json", function(response)
+//      {
         //console.log("JSON data: ",response);
 
         //Code to return data structure
@@ -334,7 +343,6 @@
 			newx_elements[iterator] = sorted_xelements[i][0].x;
 			iterator++;
 	}
-	console.log(newx_elements);
 
  		  //Set X axis scale	
       var xScale = d3.scale.ordinal()
@@ -546,14 +554,14 @@ var aux_linegraph = d3.select('.linechart')
   .append("g");
 
 function getauxdata()
-{  
-  d3.json("FinalDataRanked.json", function(error, json)
+{
+    d3.xhr("http://localhost:8080/getSourceRankData", function(error, result)
   {
-    aux_all_data = json;
+      json = JSON.parse(result.responseText);
+      console.log(json);
+      aux_all_data = json;
   });
 }
-
-var source = [];
 
 function setcolor()
 {
@@ -616,6 +624,8 @@ function render2(data)
   .scale(y).orient("left").ticks(8);
 
   var sourceRank = new Array();
+    console.log(source);
+    console.log(sourcesandcolors);
   for(var j=0;j<source.length;j++)
   {
     sourceRank.push(new Array());
