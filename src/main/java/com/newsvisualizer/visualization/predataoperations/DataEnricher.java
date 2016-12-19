@@ -17,6 +17,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * This is a one time script which cleans the data with invalid entries and then saves it in MongoDb. This script is also responsible for extracting the name of source from the provided URL.
+ * <p>
  * Created by rahulkhanna on 04/12/16.
  */
 public class DataEnricher {
@@ -43,6 +45,11 @@ public class DataEnricher {
         this.source = source;
     }
 
+    /**
+     * This function is used to read the data from the provided CVS file.
+     *
+     * @return
+     */
     private List<List<String>> readData() {
         List<List<String>> collect = null;
         try (BufferedReader reader = new BufferedReader(source)) {
@@ -89,6 +96,12 @@ public class DataEnricher {
         return collect;
     }
 
+    /**
+     * This function is used to extract the name of the source from the article's URL.
+     *
+     * @param article_url url of the article.
+     * @return SourceName
+     */
     private String extractSourceNameFromURL(String article_url) {
         int firstSlashIndex = article_url.indexOf("//") + 2;
         article_url = article_url.substring(firstSlashIndex);
@@ -111,6 +124,12 @@ public class DataEnricher {
         return hostName;
     }
 
+    /**
+     * This function is used to write the processed data into another CSV file.
+     *
+     * @param inputData
+     * @param fileName
+     */
     private void writeData(List<List<String>> inputData, String fileName) {
         try {
             FileWriter fileWriter = new FileWriter(fileName);
@@ -126,6 +145,11 @@ public class DataEnricher {
         }
     }
 
+    /**
+     * This function is used to save the data in MongoDb.
+     *
+     * @param dataToSave
+     */
     private void saveDataInDB(List<List<String>> dataToSave) {
         try {
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -156,6 +180,12 @@ public class DataEnricher {
         }
     }
 
+    /**
+     * This function is used get the connection to DB.
+     *
+     * @return connection to DB.
+     * @throws UnknownHostException
+     */
     private DBCollection getDbCollection() throws UnknownHostException {
         Mongo client = new MongoClient("127.0.0.1");
         DB db = client.getDB("iv");

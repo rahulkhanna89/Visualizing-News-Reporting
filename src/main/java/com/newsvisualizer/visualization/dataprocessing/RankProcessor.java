@@ -6,11 +6,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * This class represents the Rank processing engine.
  * Created by rahulkhanna on 17/12/16.
  */
 public class RankProcessor {
 
-
+    /**
+     * This function is used to bin the articles based on their reporting time. Also ranking for auxiliary view.
+     *
+     * @param data
+     * @return
+     */
     public static Map<String, Object> populateRank(List<AccernData> data) {
         Map<String, List<AccernData>> articleByStoriesId = new HashMap<>();
         data.stream().forEach(article -> {
@@ -43,7 +49,7 @@ public class RankProcessor {
                     article.setShapeAssigned("Circle");
                 } else if (k >= 1 && k < 6) {
                     article.setShapeAssigned("Triangle");
-                }else{
+                } else {
                     article.setShapeAssigned("Diamond");
                 }
                 k++;
@@ -76,6 +82,12 @@ public class RankProcessor {
         return returnedData;
     }
 
+    /**
+     * This function is used to calculate the rank of source for every month.
+     *
+     * @param articlesByRankForAStory
+     * @return
+     */
     private static Map<String, Map<Integer, Double>> sourceRankByMonth(List<AccernData> articlesByRankForAStory) {
         Map<String, Map<Integer, Double>> rankOfSourcesByMonth = new HashMap<>();
         Map<String, Map<Integer, List<AccernData>>> articlesByMonthAndSource = new HashMap<>();
@@ -110,6 +122,13 @@ public class RankProcessor {
         return rankOfSourcesByMonth;
     }
 
+    /**
+     * This function is used to segregate the data for a source by month.
+     *
+     * @param articlesByMonth
+     * @param articlesByMonthAndSource
+     * @param monthNeeded
+     */
     private static void segregateMonthsDataBySource(List<AccernData> articlesByMonth, Map<String, Map<Integer, List<AccernData>>> articlesByMonthAndSource, int monthNeeded) {
         for (AccernData article : articlesByMonth) {
             if (articlesByMonthAndSource.containsKey(article.getSource_name())) {
@@ -132,7 +151,13 @@ public class RankProcessor {
         }
     }
 
-
+    /**
+     * This function is used to generate logarithmic factors for ranking sources in the auxiliary view.
+     *
+     * @param timeRangeForThisStory
+     * @param startTime
+     * @return
+     */
     private static Map<Integer, Map<String, Date>> generateTimeCutOffPerRank(long timeRangeForThisStory, long startTime) {
         Map<Integer, Map<String, Date>> timeRangePerRank = new HashMap<>(8);
         Calendar start = Calendar.getInstance();

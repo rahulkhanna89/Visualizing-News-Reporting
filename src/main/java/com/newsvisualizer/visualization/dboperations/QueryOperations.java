@@ -7,13 +7,15 @@ import java.net.UnknownHostException;
 import java.util.*;
 
 /**
+ * This class is used to query DB.
+ * <p>
  * Created by rahulkhanna on 08/12/16.
  */
 public class QueryOperations {
 
     private final DBCollection collection;
 
-    public QueryOperations(){
+    public QueryOperations() {
         Mongo client = null;
         try {
             client = new MongoClient("127.0.0.1");
@@ -27,7 +29,14 @@ public class QueryOperations {
         this.collection.createIndex(new BasicDBObject("story_id", 1));
     }
 
-
+    /**
+     * This function is used to fetch data from db based on sector, threshold and source rank.
+     *
+     * @param sector
+     * @param threshold
+     * @param sourceRank
+     * @return
+     */
     public List<AccernData> getStoriesByGivenSector(String sector, int threshold, int sourceRank) {
 
         BasicDBObject sourceFetchQuery = new BasicDBObject();
@@ -68,12 +77,6 @@ public class QueryOperations {
         }
         cursor.close();
         return dataToReturn;
-    }
-
-    public static void main(String[] args) {
-        QueryOperations ops = new QueryOperations();
-        List<AccernData> storiesByGivenSector = ops.getStoriesByGivenSector("Technology", 1, 6);
-        System.out.println("storiesByGivenSector = " + storiesByGivenSector.size());
     }
 
 }

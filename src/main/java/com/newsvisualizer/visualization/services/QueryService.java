@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.*;
 
 /**
+ * This class represents the service which will be called by the frontend UI.
+ * <p>
  * Created by rahulkhanna on 08/12/16.
  */
 @RestController
@@ -19,7 +21,9 @@ public class QueryService {
     private QueryOperations queryOps;
 
     private Map<String, Map<Integer, Double>> fetchedData;
-
+    /**
+     * This is the cache object which keeps the processed data for main and auxiliary view.
+     */
     private final Map<String, Map<Integer, Map<String, Object>>> cache;
 
 
@@ -36,7 +40,13 @@ public class QueryService {
         this.cache = new HashMap<>();
     }
 
-
+    /**
+     * This service is called by the main view of the UI.
+     *
+     * @param sector    of the data
+     * @param threshold number of articles which a story must have.
+     * @return
+     */
     @CrossOrigin(origins = "http://localhost:8000")
     @RequestMapping(value = "/databysector")
     public List<AccernData> getDataBySector(@RequestParam(value = "sector") String sector, @RequestParam(value = "threshold") int threshold) {
@@ -70,6 +80,13 @@ public class QueryService {
         return dataToReturn;
     }
 
+    /**
+     * If the data is not present in the cache, this function will be used to fetch it from MongoDB.
+     *
+     * @param sector
+     * @param threshold
+     * @return data corresponding to a sector passing the threshold.
+     */
     private Map<String, Object> fetchData(@RequestParam(value = "sector") String sector, @RequestParam(value = "threshold") int threshold) {
         List<AccernData> storiesByGivenSector = queryOps.getStoriesByGivenSector(sector, threshold, 6);
         Map<String, Object> processedData = RankProcessor.populateRank(storiesByGivenSector);
@@ -78,6 +95,11 @@ public class QueryService {
         return processedData;
     }
 
+    /**
+     * This service is called for getting the data for the auxiliary view. This service only returns the processed data.
+     *
+     * @return
+     */
     @CrossOrigin(origins = "http://localhost:8000")
     @RequestMapping(value = "/getSourceRankData")
     public Map<String, Map<Integer, Double>> getSourceRankData() {

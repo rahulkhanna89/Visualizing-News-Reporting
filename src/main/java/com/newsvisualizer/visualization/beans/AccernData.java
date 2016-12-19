@@ -3,6 +3,8 @@ package com.newsvisualizer.visualization.beans;
 import java.util.Date;
 
 /**
+ * This is the pojo class representing Accern's data.
+ * <p>
  * Created by rahulkhanna on 09/12/16.
  */
 public class AccernData implements Comparable<AccernData> {
@@ -20,6 +22,19 @@ public class AccernData implements Comparable<AccernData> {
     private int sourceScore = 1;
     private int sourceRank = 0;
 
+    /**
+     * Constructor
+     *
+     * @param article_id          unique for an article
+     * @param story_id            id for a story which can be same for group of articles.
+     * @param harvested_at        time at which the article was reported.
+     * @param entity_name         name of the entity involved in the article/story.
+     * @param entity_sector       name of the sector in which entity belongs.
+     * @param story_name
+     * @param story_volume        number of articles reported in a story.
+     * @param source_name         name of the source which reported the article.
+     * @param overall_source_rank
+     */
     public AccernData(String article_id, String story_id, Date harvested_at, String entity_name, String entity_sector, String story_name, int story_volume, String source_name, int overall_source_rank) {
         this.article_id = article_id;
         this.story_id = story_id;
