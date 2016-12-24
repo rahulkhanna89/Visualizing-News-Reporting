@@ -220,7 +220,6 @@
         var sourcesandcolors = [];
         var source = [];
 
-        //var selectedArticles = number_articles.options[number_articles.selectedIndex].text;
         datacall();
 
         function settopic()
@@ -241,7 +240,6 @@
             else if(selectedText == "Finance"){
                 $(".financeclass").style("display","block");
             }
-            //$("#number_articles").trigger("click");
         }
 
         function setarticles()
@@ -263,7 +261,6 @@
           else{
             selectedArticles = temp;
           }
-        	//selectedArticles = number_articles.options[number_articles.selectedIndex].text;
             aux_linegraph.selectAll("*").remove();
         	svg.selectAll("*").remove();
             sourcesandcolors = [];
@@ -302,9 +299,6 @@
       	{
        	 response = JSON.parse(result.responseText);
             getauxdata();
-//      d3.json("technology500.json", function(response)
-//      {
-        //console.log("JSON data: ",response);
 
         //Code to return data structure
         	data = response.map(function( item ) {
@@ -401,7 +395,7 @@
  		  //Set X axis scale
       var xScale = d3.scale.ordinal()
         .domain(newx_elements)
-        .rangeBands([0, newx_elements.length * (itemSize + 5)]);
+        .rangeBands([0, newx_elements.length * (itemSize + 3)]);
 
     //Set X axis
     var xAxis = d3.svg.axis()
@@ -555,11 +549,6 @@
         });
     }
 
-    function highlight(x_coordinate)
-    {
-
-    }
-
     function getShape(all_data,story,source)
     {
         for(var i=0;i<all_data.length;i++)
@@ -634,7 +623,6 @@ function setcolor()
 function addsource(parameter)
 {
   aux_flag_contains = 0;
-  //var name = document.getElementById('Source').value;
   var name = parameter;
   if(source.indexOf(name) == -1)
     source.push(name);
@@ -657,7 +645,6 @@ function addsource(parameter)
 
 function removesource(parameter)
 {
-  //var name = document.getElementById('Source').value;
   var name = parameter;
   var index = source.indexOf(name);
   if(index > -1)
@@ -706,9 +693,6 @@ function render2(data)
       .attr("transform", "translate(20,0)")
       .call(yAxis);
 
-    //if(sourceRank.length==0)
-      //aux_linegraph.selectAll("*").remove();
-    //else
       var lines = plotLinegraph(data,sourceRank);
  }
 
